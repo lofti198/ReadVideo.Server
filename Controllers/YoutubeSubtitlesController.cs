@@ -32,13 +32,5 @@ namespace ReadVideo.Server.Controllers
 
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetSubtitles()
-        //{
-           
-        //    // Do something with the subtitles and return a response
-        //    return Ok("Test");
-
-        //}
     }
 }
