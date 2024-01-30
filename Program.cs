@@ -1,3 +1,6 @@
+using MongoDB.Driver;
+using ReadVideo.Server.Data;
+using ReadVideo.Server.Models;
 using ReadVideo.Services.YoutubeManagement;
 
 namespace ReadVideo.Server
@@ -21,6 +24,28 @@ namespace ReadVideo.Server
                            .AllowAnyHeader();
                 });
             });
+            
+            var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
+            var mongoDbConnectionString = Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar);
+            
+            builder.Services.AddSingleton<IMongoClient>(ServiceProvider =>
+            {
+                return new MongoClient(mongoDbConnectionString);
+            });
+            builder.Services.AddSingleton(serviceProvider =>
+            {
+                var client = serviceProvider.GetRequiredService<IMongoClient>();
+                return client.GetDatabase(mongoDbSettings.DatabaseName);
+            });
+            // builder.Services.AddScoped<MongoDbContext>();
+            builder.Services.AddSingleton(new MongoDbContext(Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar), mongoDbSettings.DatabaseName));
+
+            builder.Services.AddMemoryCache();
+            //var mongoConnectionString = builder.Configuration.GetConnectionString("MongoConnection");
+            ////var mongoDatabaseName = builder.Configuration["MongoSettings:DatabaseName"];
+
+            //builder.Services.AddSingleton(new MongoDbContext(mongoConnectionString, mongoDatabaseName));
+
 
             var app = builder.Build();
 

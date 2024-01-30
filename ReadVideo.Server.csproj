@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>7.*-*</Version>
     </PackageReference>
+    <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
     <PackageReference Include="YoutubeExplode" Version="6.3.12" />
   </ItemGroup>
 
