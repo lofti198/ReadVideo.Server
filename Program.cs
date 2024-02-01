@@ -1,7 +1,12 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using ReadVideo.Server.Data;
+using ReadVideo.Server.Middleware;
 using ReadVideo.Server.Models;
 using ReadVideo.Services.YoutubeManagement;
+using System.Text;
 
 namespace ReadVideo.Server
 {
@@ -10,8 +15,6 @@ namespace ReadVideo.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
 
             builder.Services.AddControllers();
             builder.Services.AddTransient<IYoutubeSubtitleService, YoutubeSubtitleService>();
@@ -48,7 +51,7 @@ namespace ReadVideo.Server
 
 
             var app = builder.Build();
-
+            
             app.UseCors("AllowAnyOrigin"); // Use the named CORS policy here
 
             app.UseDefaultFiles();
@@ -60,7 +63,7 @@ namespace ReadVideo.Server
 
             app.UseAuthorization();
 
-
+            app.UseMiddleware<UserProcessingMiddleware>();
             app.MapControllers();
 
             app.MapFallbackToFile("/index.html");

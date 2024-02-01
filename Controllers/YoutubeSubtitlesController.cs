@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Driver;
 using ReadVideo.Server.Data;
 using ReadVideo.Services.YoutubeManagement;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ReadVideo.Server.Controllers
@@ -23,51 +25,21 @@ namespace ReadVideo.Server.Controllers
             this._memoryCache = memoryCache;
         }
 
-        [HttpPost("LoadSubtitles")]
-        public async Task<IActionResult> LoadSubtitles([FromBody] UserRequest userRequest)
+        // [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> LoadSubtitles([FromQuery] string videoId, [FromQuery] string language)
         {
             try
             {
-                if (string.IsNullOrEmpty(userRequest.Email))
-                {
-                    return BadRequest("Email cannot be empty.");
-                }
-
-                // Check if user exists in the server cache
-
-                // Check if the user with the given email is in the cache
-                if (!_memoryCache.TryGetValue(userRequest.Email, out string cachedFullname))
-                {
-                    // If not in cache, add to cache
-                    var cacheEntryOptions = new MemoryCacheEntryOptions
-                    {
-                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30) // You can adjust the expiration time as needed
-                    };
-
-                    // Store user information in cache
-                    _memoryCache.Set(userRequest.Email, userRequest.Fullname, cacheEntryOptions);
-
-                    // Now you can proceed with other operations (e.g., checking MongoDB, etc.)
-                    // Check if user exists in the MongoDB Users collection
-                    var userExistsInMongo = await CheckUserInMongo(userRequest.Email);
-
-                    if (!userExistsInMongo)
-                    {
-                        // Add user to the MongoDB Users collection
-                        await AddUserToMongo(userRequest.Email, userRequest.Fullname);
-                    }
-                }
                 
-
-                Console.WriteLine($"get subtitles for: {userRequest.VideoId}");
-                var subtitles = await _subtitleService.ExtractSubtitle(userRequest.VideoId, userRequest.Language);
+                Console.WriteLine($"Get subtitles for: {videoId}");
+                var subtitles = await _subtitleService.ExtractSubtitle(videoId, language);
 
                 if (subtitles == null)
                 {
-                    return NotFound(); // or return an appropriate HTTP status code
+                    return NotFound("Subtitles not found.");
                 }
 
-                // Do something with the subtitles and return a response
                 return Ok(subtitles);
             }
             catch (Exception ex)
@@ -76,17 +48,6 @@ namespace ReadVideo.Server.Controllers
             }
         }
 
-        private bool CheckUserInCache(string email, string fullname)
-        {
-            // Implement your logic to check if the user exists in the server cache
-            // Return true if user exists, false otherwise
-            return false;
-        }
-
-        private void AddUserToCache(string email, string fullname)
-        {
-            // Implement your logic to add the user to the server cache
-        }
 
         private async Task<bool> CheckUserInMongo(string email)
         {
@@ -103,12 +64,4 @@ namespace ReadVideo.Server.Controllers
         }
     }
 
-    public class UserRequest
-    {
-        public string Email { get; set; }
-        public string Fullname { get; set; }
-
-        public string VideoId { get; set; }
-        public string Language { get; set; }
-    }
 }
