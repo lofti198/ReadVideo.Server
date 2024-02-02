@@ -44,6 +44,26 @@ namespace ReadVideo.Server
             builder.Services.AddSingleton(new MongoDbContext(Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar), mongoDbSettings.DatabaseName));
 
             builder.Services.AddMemoryCache();
+
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "Jwt:Issuer",
+                    ValidAudience = "Jwt:Audience",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("aTGeUGu2fBQstsUkLFryni51LpCxl0Mqg7pLGTPvt6c="))
+                };
+            });
             //var mongoConnectionString = builder.Configuration.GetConnectionString("MongoConnection");
             ////var mongoDatabaseName = builder.Configuration["MongoSettings:DatabaseName"];
 
@@ -61,6 +81,7 @@ namespace ReadVideo.Server
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseMiddleware<UserProcessingMiddleware>();
