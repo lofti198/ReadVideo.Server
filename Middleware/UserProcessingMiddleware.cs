@@ -19,10 +19,10 @@ namespace ReadVideo.Server.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            string email = context.Request.Headers["email"].FirstOrDefault();
-            string fullname = context.Request.Headers["name"].FirstOrDefault();
+            string email = context.Request.Headers["Email"].FirstOrDefault();
+            string fullname = context.Request.Headers["name"].FirstOrDefault() ?? "";
 
-            if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(fullname))
+            if (!string.IsNullOrWhiteSpace(email))
             {
                 if (!_memoryCache.TryGetValue(email, out string cachedFullname))
                 {
