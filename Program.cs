@@ -27,7 +27,7 @@ namespace ReadVideo.Server
                            .AllowAnyHeader();
                 });
             });
-            
+
             var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
             var mongoDbConnectionString = Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar);
             
@@ -52,6 +52,9 @@ namespace ReadVideo.Server
 
             var app = builder.Build();
             
+            // Configure the HTTP request pipeline.
+            app.UseRouting(); // Ensure UseRouting is called before UseCors
+
             app.UseCors("AllowAnyOrigin"); // Use the named CORS policy here
 
             app.UseDefaultFiles();
