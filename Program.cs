@@ -63,7 +63,7 @@ namespace ReadVideo.Server
 
             app.UseAuthorization();
 
-            app.UseMiddleware<UserProcessingMiddleware>();
+            // app.UseMiddleware<UserProcessingMiddleware>();
             app.MapControllers();
 
             app.MapFallbackToFile("/index.html");
