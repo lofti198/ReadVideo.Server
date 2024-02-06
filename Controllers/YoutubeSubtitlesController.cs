@@ -27,7 +27,7 @@ namespace ReadVideo.Server.Controllers
 
         // [Authorize]
         [HttpGet]
-        public async Task<IActionResult> LoadSubtitles([FromQuery] string videoId, [FromQuery] string language)
+        public async Task<IActionResult> LoadSubtitles([FromQuery] string videoId, [FromQuery] string language ="")
         {
             try
             {
