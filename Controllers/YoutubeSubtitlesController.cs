@@ -26,14 +26,14 @@ namespace ReadVideo.Server.Controllers
         }
 
         // [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> LoadSubtitles([FromQuery] string videoId, [FromQuery] string language ="")
+        [HttpGet("LoadSubtitles")]
+        public async Task<IActionResult> LoadSubtitles([FromQuery] string videoId, [FromQuery] string language ="", [FromQuery] bool full = true)
         {
             try
             {
                 
                 Console.WriteLine($"Get subtitles for: {videoId}");
-                var subtitles = await _subtitleService.ExtractSubtitle(videoId, language);
+                var subtitles = await _subtitleService.ExtractSubtitle(videoId, language, full);
 
                 if (subtitles == null)
                 {
@@ -41,6 +41,7 @@ namespace ReadVideo.Server.Controllers
                 }
 
                 return Ok(subtitles);
+
             }
             catch (Exception ex)
             {
@@ -48,6 +49,36 @@ namespace ReadVideo.Server.Controllers
             }
         }
 
+        [HttpGet("LoadTextBlocks")]
+        public async Task<IActionResult> LoadTextBlocks([FromQuery] string videoId, [FromQuery] string language = "", [FromQuery] int minspan = 700)
+        {
+            try
+            {
+
+                Console.WriteLine($"Get subtitles for: {videoId}");
+                //var subtitles = await _subtitleService.ExtractSubtitle(videoId, language, full);
+
+                //if (subtitles == null)
+                //{
+                //    return NotFound("Subtitles not found.");
+                //}
+
+                //return Ok(subtitles);
+
+                var textBlocks = await _subtitleService.ExtractSubtitleAsTextBlocks(videoId, language, minspan);
+
+                if (textBlocks == null)
+                {
+                    return NotFound("Subtitles not found.");
+                }
+
+                return Ok(textBlocks);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
         private async Task<bool> CheckUserInMongo(string email)
         {
