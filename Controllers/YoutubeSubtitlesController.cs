@@ -50,7 +50,7 @@ namespace ReadVideo.Server.Controllers
         }
 
         [HttpGet("LoadTextBlocks")]
-        public async Task<IActionResult> LoadTextBlocks([FromQuery] string videoId, [FromQuery] string language = "", [FromQuery] int minspan = 700)
+        public async Task<IActionResult> LoadTextBlocks([FromQuery] string videoId, [FromQuery] string language = "", [FromQuery] int minspan = 1200)
         {
             try
             {
