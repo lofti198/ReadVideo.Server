@@ -148,7 +148,7 @@ namespace ReadVideo.Services.YoutubeManagement
                     // TODO: remove textChunkLists with 0 elements
 
                     // Convert the list of anonymous types to a JSON string
-                    return JsonSerializer.Serialize(textChunkLists.Select(p => new { Offset = p[0].Offset, Text = String.Join(" ", p.Select(obj => obj.Text)) }), new JsonSerializerOptions
+                    return JsonSerializer.Serialize(textChunkLists.Select(p => new { Offset = p[0].Offset, Text = ContentPreprocess(String.Join(" ", p.Select(obj => obj.Text))) }), new JsonSerializerOptions
                     {
                         WriteIndented = true // Optional: makes the JSON string more readable
                     });
@@ -258,6 +258,9 @@ namespace ReadVideo.Services.YoutubeManagement
             }
 
         }
+
+        public Func<string, string> ContentPreprocess = text => text.Trim();//.Replace("'", "APO")
+
 
         public int CountWords(string sentence)
         {
