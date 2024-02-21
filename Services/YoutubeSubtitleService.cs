@@ -76,6 +76,11 @@ namespace ReadVideo.Services.YoutubeManagement
                 var youtube = new YoutubeClient();
 
                 var videoInfo = await youtube.Videos.GetAsync(videoId);
+
+                if(videoInfo.Duration.Value.TotalMinutes > 60)
+                {
+                    throw new VideoDurationExceededException("The video duration exceeds the allowed limit.");
+                }
                 // Get the available subtitle tracks
                 var tracks = await youtube.Videos.ClosedCaptions.GetManifestAsync(videoId);
 
@@ -194,5 +199,12 @@ namespace ReadVideo.Services.YoutubeManagement
     {
         public string Text { get; set; }
         public TimeSpan Offset { get; set; }
+    }
+
+    public class VideoDurationExceededException : Exception
+    {
+        public VideoDurationExceededException(string message) : base(message)
+        {
+        }
     }
 }

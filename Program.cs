@@ -64,6 +64,8 @@ namespace ReadVideo.Server
 
             app.UseHttpsRedirection();
 
+            app.UseMiddleware<ErrorHandlingMiddleware>();
+            
             app.UseAuthorization();
 
             // app.UseMiddleware<UserProcessingMiddleware>();
