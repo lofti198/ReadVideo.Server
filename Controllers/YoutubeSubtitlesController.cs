@@ -29,8 +29,7 @@ namespace ReadVideo.Server.Controllers
         [HttpGet("LoadSubtitles")]
         public async Task<IActionResult> LoadSubtitles([FromQuery] string videoId, [FromQuery] string language ="", [FromQuery] bool full = true)
         {
-            try
-            {
+           
                 
                 Console.WriteLine($"Get subtitles for: {videoId}");
                 var subtitles = await _subtitleService.ExtractSubtitle(videoId, language, full);
@@ -42,19 +41,12 @@ namespace ReadVideo.Server.Controllers
 
                 return Ok(subtitles);
 
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
         }
 
         [HttpGet("LoadTextBlocks")]
         public async Task<IActionResult> LoadTextBlocks([FromQuery] string videoId, [FromQuery] string language = "", [FromQuery] int minspan = 1200)
         {
-            try
-            {
-
+        
                 Console.WriteLine($"Get subtitles for: {videoId}");
                 //var subtitles = await _subtitleService.ExtractSubtitle(videoId, language, full);
 
@@ -73,11 +65,7 @@ namespace ReadVideo.Server.Controllers
                 }
 
                 return Ok(textBlocks);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
+          
         }
 
         private async Task<bool> CheckUserInMongo(string email)

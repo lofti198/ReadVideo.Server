@@ -20,7 +20,17 @@ namespace ReadVideo.Server.Middleware
             {
                 await _next(context);
             }
-            catch (VideoDurationExceededException ex)
+            //catch (VideoDurationExceededException ex)
+            //{
+            //    context.Response.ContentType = "application/json";
+            //    context.Response.StatusCode = (int)HttpStatusCode.BadRequest; // 400
+            //    await context.Response.WriteAsync(new ErrorDetails
+            //    {
+            //        StatusCode = context.Response.StatusCode,
+            //        Message = ex.Message
+            //    }.ToString());
+            //}
+            catch(Exception ex) 
             {
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest; // 400

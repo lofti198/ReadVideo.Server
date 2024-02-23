@@ -69,8 +69,7 @@ namespace ReadVideo.Services.YoutubeManagement
     
         public async Task<string> ExtractSubtitleAsTextBlocks(string videoId, string language, int sentenceMinTimeSpan)
         {
-            try
-            {
+           
 
                 // Create a new instance of YoutubeClient
                 var youtube = new YoutubeClient();
@@ -84,6 +83,10 @@ namespace ReadVideo.Services.YoutubeManagement
                 // Get the available subtitle tracks
                 var tracks = await youtube.Videos.ClosedCaptions.GetManifestAsync(videoId);
 
+                if (tracks.Tracks.Count==0)
+                {
+                    throw new Exception("No subtitles found");
+                }
                 if (String.IsNullOrEmpty(language)) language = tracks.Tracks[0].Language.Code;
 
                 // Select a track
@@ -168,12 +171,7 @@ namespace ReadVideo.Services.YoutubeManagement
                 }
 
                 return "";
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+           
 
         }
 
