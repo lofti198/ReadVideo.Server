@@ -134,11 +134,11 @@ namespace ReadVideo.Services.YoutubeManagement
 
                         blockBuilder.Add(rawParts[i]);
                     }
+                    if(blockBuilder.Count >0) textChunkLists.Add(blockBuilder);
+                // MergeBlocks when previous having small element amount
+                // assuming it is the same info block
 
-                    // MergeBlocks when previous having small element amount
-                    // assuming it is the same info block
-
-                    for (int i = 1; i < textChunkLists.Count; i++)
+                for (int i = 1; i < textChunkLists.Count; i++)
                     {
                         if (textChunkLists[i - 1].Count <= 25)
                         {
