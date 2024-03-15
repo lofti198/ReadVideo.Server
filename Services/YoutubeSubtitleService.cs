@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReadVideo.Server.Data;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -76,9 +77,9 @@ namespace ReadVideo.Services.YoutubeManagement
 
                 var videoInfo = await youtube.Videos.GetAsync(videoId);
 
-                if(videoInfo.Duration.Value.TotalMinutes > 60)
+                if(videoInfo.Duration.Value.TotalMinutes > Consts.MaxAllowedVideoDurationMinutes)
                 {
-                    throw new VideoDurationExceededException("The video duration exceeds the allowed limit.");
+                    throw new VideoDurationExceededException($"The video duration exceeds the allowed limit ({Consts.MaxAllowedVideoDurationMinutes} minutes).");
                 }
                 // Get the available subtitle tracks
                 var tracks = await youtube.Videos.ClosedCaptions.GetManifestAsync(videoId);
