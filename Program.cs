@@ -17,6 +17,7 @@ namespace ReadVideo.Server
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
+            // builder.Services.AddNewtonsoftJson();
             builder.Services.AddTransient<IYoutubeSubtitleService, YoutubeSubtitleService>();
             builder.Services.AddCors(options =>
             {
