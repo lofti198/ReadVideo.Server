@@ -31,7 +31,7 @@ namespace ReadVideo.Server.Controllers
             };
 
             // Setting the message details
-            botResponse.Message.Text = "Здравствуйте! Чем могу вам помочь?";
+            botResponse.Message.Text = "Я Mock! Чем могу вам помочь?";
             botResponse.Message.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(); // Current timestamp
 
             // Serialize the BotResponse object to a JSON string
