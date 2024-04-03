@@ -20,9 +20,20 @@ namespace ReadVideo.Server.Controllers
             //_jivoService = jivoService;
             //_openAIService = openAIService;
         }
-       
+
         [HttpPost("StartSpeaking")]
         public async Task<IActionResult> StartSpeaking([FromBody] ClientMessage clientMessage)
+        {
+            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_StartSpeaking);
+        }
+
+        [HttpPost("Datacol")]
+        public async Task<IActionResult> Datacol([FromBody] ClientMessage clientMessage)
+        {
+            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC);
+        }
+
+        public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
         {
             // https://www.jivo.ru/docs/bot/
             // Extract necessary data from the CLIENT_MESSAGE
@@ -51,7 +62,7 @@ namespace ReadVideo.Server.Controllers
             // Prepare and get the response
             var runCreateParams = new RunCreateParameter
             {
-                Assistant_Id = Consts.ASST_ID,
+                Assistant_Id = assistantId,
                 Thread_Id = threadId,
                 Stream = true
             };
