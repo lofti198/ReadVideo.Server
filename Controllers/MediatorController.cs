@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HigLabo.OpenAI;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ReadVideo.Server.Data;
 using System.Net;
@@ -21,22 +22,61 @@ namespace ReadVideo.Server.Controllers
         }
        
         [HttpPost("StartSpeaking")]
-        public async Task<IActionResult> StartSpeaking([FromBody] ClientMessage chatRequest)
+        public async Task<IActionResult> StartSpeaking([FromBody] ClientMessage clientMessage)
         {
             // https://www.jivo.ru/docs/bot/
-            // Create the response object and populate it
+            // Extract necessary data from the CLIENT_MESSAGE
+            string userInput = clientMessage.Message.Text;
+
+            // Initialize OpenAI Client
+            var cl = new OpenAIClient(Environment.GetEnvironmentVariable("GPT_API_KEY"));
+            string threadId = ""; // Consider storing threadId in a session or a persistent storage
+
+            // Initialize thread on first interaction
+            if (string.IsNullOrEmpty(threadId))
+            {
+                var threadCreationResponse = await cl.ThreadCreateAsync();
+                threadId = threadCreationResponse.Id;
+            }
+
+            // Send user input as a message to the assistant
+            var messageCreateParams = new MessageCreateParameter
+            {
+                Thread_Id = threadId,
+                Role = "user",
+                Content = userInput
+            };
+            await cl.MessageCreateAsync(messageCreateParams);
+
+            // Prepare and get the response
+            var runCreateParams = new RunCreateParameter
+            {
+                Assistant_Id = Consts.ASST_ID,
+                Thread_Id = threadId,
+                Stream = true
+            };
+            string openAIResponseText = "";
+
+            // Receive the response stream
+            await foreach (var text in cl.RunCreateStreamAsync(runCreateParams, new AssistantMessageStreamResult(), CancellationToken.None))
+            {
+                openAIResponseText += text;
+            }
+
+            // Form the BOT_MESSAGE based on OpenAI's response
             var botResponse = new BotResponse
             {
-                Id = Guid.NewGuid().ToString(), // Generating a new unique GUID
-                ClientId = chatRequest.ClientId, // Using the client ID from the request
-                ChatId = chatRequest.ChatId, // Using the chat ID from the request
+                Id = Guid.NewGuid().ToString(),
+                ClientId = clientMessage.ClientId,
+                ChatId = clientMessage.ChatId,
+                Message = new BotMessage
+                {
+                    Text = openAIResponseText,
+                    Type = "TEXT",
+                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                },
                 Event = "BOT_MESSAGE"
             };
-
-            // Setting the message details
-            botResponse.Message.Type = "TEXT";
-            botResponse.Message.Text = "Я Mock! Чем могу вам помочь?";
-            botResponse.Message.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(); // Current timestamp
 
             // Serialize the BotResponse object to a JSON string using System.Text.Json
             var options = new JsonSerializerOptions { WriteIndented = true };
