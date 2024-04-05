@@ -1,3 +1,4 @@
+using HigLabo.OpenAI;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -5,6 +6,7 @@ using MongoDB.Driver;
 using ReadVideo.Server.Data;
 using ReadVideo.Server.Middleware;
 using ReadVideo.Server.Models;
+using ReadVideo.Server.Services.AIAssistants;
 using ReadVideo.Services.YoutubeManagement;
 using System.Text;
 
@@ -28,6 +30,15 @@ namespace ReadVideo.Server
                            .AllowAnyHeader();
                 });
             });
+
+            // Add services to the container.
+            builder.Services.AddSingleton<OpenAIClient>(serviceProvider =>
+            {
+                string apiKey = Environment.GetEnvironmentVariable(Consts.OpenAIApiKey); // Ensure you have this setting in your appsettings.json or other configuration sources
+                return new OpenAIClient(apiKey);
+            });
+
+            builder.Services.AddSingleton<IAssistantServiceBase, OpenAIAssistantService>();
 
             var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
             var mongoDbConnectionString = Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar);

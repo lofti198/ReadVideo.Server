@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ReadVideo.Server.Data;
+using ReadVideo.Server.Services.AIAssistants;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -13,10 +14,11 @@ namespace ReadVideo.Server.Controllers
     public class MediatorController : ControllerBase
     {
         // private readonly IJivoService _jivoService; // Service to interact with Jivo API
-        // private readonly IOpenAIService _openAIService; // Service to interact with OpenAI API
+        private readonly IAssistantServiceBase _assistant; // Service to interact with OpenAI API
 
-        public MediatorController()//IJivoService jivoService, IOpenAIService openAIService)
+        public MediatorController(IAssistantServiceBase assistant)//IJivoService jivoService, IOpenAIService openAIService)
         {
+            _assistant = assistant;
             //_jivoService = jivoService;
             //_openAIService = openAIService;
         }
@@ -24,7 +26,7 @@ namespace ReadVideo.Server.Controllers
         [HttpPost("StartSpeaking")]
         public async Task<IActionResult> StartSpeaking([FromBody] ClientMessage clientMessage)
         {
-            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_StartSpeaking);
+            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC);
         }
 
         [HttpPost("Datacol")]
@@ -37,42 +39,11 @@ namespace ReadVideo.Server.Controllers
         {
             // https://www.jivo.ru/docs/bot/
             // Extract necessary data from the CLIENT_MESSAGE
-            string userInput = clientMessage.Message.Text;
 
-            // Initialize OpenAI Client
-            var cl = new OpenAIClient(Environment.GetEnvironmentVariable("GPT_API_KEY"));
-            string threadId = ""; // Consider storing threadId in a session or a persistent storage
 
-            // Initialize thread on first interaction
-            if (string.IsNullOrEmpty(threadId))
-            {
-                var threadCreationResponse = await cl.ThreadCreateAsync();
-                threadId = threadCreationResponse.Id;
-            }
+            Console.WriteLine($"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId}, Message = {clientMessage.Message.Text}");
 
-            // Send user input as a message to the assistant
-            var messageCreateParams = new MessageCreateParameter
-            {
-                Thread_Id = threadId,
-                Role = "user",
-                Content = userInput
-            };
-            await cl.MessageCreateAsync(messageCreateParams);
-
-            // Prepare and get the response
-            var runCreateParams = new RunCreateParameter
-            {
-                Assistant_Id = assistantId,
-                Thread_Id = threadId,
-                Stream = true
-            };
-            string openAIResponseText = "";
-
-            // Receive the response stream
-            await foreach (var text in cl.RunCreateStreamAsync(runCreateParams, new AssistantMessageStreamResult(), CancellationToken.None))
-            {
-                openAIResponseText += text;
-            }
+            string openAIResponseText = await _assistant.GetResponseAsync(clientMessage.Message.Text, assistantId, clientMessage.ChatId);
 
             // Form the BOT_MESSAGE based on OpenAI's response
             var botResponse = new BotResponse
