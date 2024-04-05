@@ -5,11 +5,11 @@ using System.Text;
 
 namespace ReadVideo.Server.Services.AIAssistants
 {
-    public class OpenAIAssistantService : AssistantServiceBase
+    public class OpenAIAssistant : AssistantBase
     {
         public readonly OpenAIClient _client;
         private ConcurrentDictionary<string, string>_externalThreadToAssistantDict = new ConcurrentDictionary<string, string>();
-        public OpenAIAssistantService(OpenAIClient client)
+        public OpenAIAssistant(OpenAIClient client)
         {
             _client = client;
         }

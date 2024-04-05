@@ -1,16 +1,13 @@
 using HigLabo.OpenAI;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using ReadVideo.Server.Data;
 using ReadVideo.Server.Middleware;
 using ReadVideo.Server.Models;
 using ReadVideo.Server.Services.AIAssistants;
+using ReadVideo.Server.Services.AIAssistants.Decorators;
 using ReadVideo.Server.Services.Embeddings.Generation;
 using ReadVideo.Server.Services.Embeddings.Storage;
 using ReadVideo.Services.YoutubeManagement;
-using System.Text;
 
 namespace ReadVideo.Server
 {
@@ -40,8 +37,9 @@ namespace ReadVideo.Server
                 return new OpenAIClient(Environment.GetEnvironmentVariable(Consts.OpenAIApiKey));
             });
 
-            builder.Services.AddSingleton<IAssistantServiceBase, OpenAIAssistantService>();
-            builder.Services.AddScoped<IEmbeddingStorageService, SingleStoreService>(serviceProvider =>
+            builder.Services.AddSingleton<IAssistant, OpenAIAssistant>();
+
+            builder.Services.AddSingleton<IEmbeddingStorageService, SingleStoreService>(serviceProvider =>
             {
                 return new SingleStoreService(Environment.GetEnvironmentVariable(Consts.SingleStoreConnectionStr));
             });
@@ -50,7 +48,17 @@ namespace ReadVideo.Server
             {
                 return new OpenAIEmbeddingGenerator(Environment.GetEnvironmentVariable(Consts.OpenAIApiKey));
             });
-            
+
+
+
+            // Register the decorator, ensuring it wraps the original IAssistant
+            builder.Services.Decorate<IAssistant>((inner, serviceProvider) =>
+            {
+                var embeddingGenerator = serviceProvider.GetRequiredService<IEmbeddingGenerator>();
+                var embeddingStorageService = serviceProvider.GetRequiredService<IEmbeddingStorageService>();
+                return new EmbeddingsAssistantDecorator(inner, embeddingGenerator, embeddingStorageService);
+            });
+
 
             var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
             var mongoDbConnectionString = Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar);

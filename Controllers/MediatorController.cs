@@ -14,9 +14,9 @@ namespace ReadVideo.Server.Controllers
     public class MediatorController : ControllerBase
     {
         // private readonly IJivoService _jivoService; // Service to interact with Jivo API
-        private readonly IAssistantServiceBase _assistant; // Service to interact with OpenAI API
+        private readonly IAssistant _assistant; // Service to interact with OpenAI API
 
-        public MediatorController(IAssistantServiceBase assistant)//IJivoService jivoService, IOpenAIService openAIService)
+        public MediatorController(IAssistant assistant)//IJivoService jivoService, IOpenAIService openAIService)
         {
             _assistant = assistant;
             //_jivoService = jivoService;

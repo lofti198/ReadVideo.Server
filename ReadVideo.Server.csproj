@@ -16,6 +16,8 @@
     <PackageReference Include="HigLabo.Core" Version="8.6.0" />
     <PackageReference Include="HigLabo.OpenAI" Version="8.3.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
+    <PackageReference Include="Scrutor" Version="4.2.2" />
+    <PackageReference Include="Scrutor.AspNetCore" Version="3.3.0" />
     <PackageReference Include="SingleStoreConnector" Version="1.1.4" />
     <PackageReference Include="YoutubeExplode" Version="6.3.12" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" />
