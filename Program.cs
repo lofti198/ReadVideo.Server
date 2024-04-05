@@ -7,6 +7,8 @@ using ReadVideo.Server.Data;
 using ReadVideo.Server.Middleware;
 using ReadVideo.Server.Models;
 using ReadVideo.Server.Services.AIAssistants;
+using ReadVideo.Server.Services.Embeddings.Generation;
+using ReadVideo.Server.Services.Embeddings.Storage;
 using ReadVideo.Services.YoutubeManagement;
 using System.Text;
 
@@ -16,6 +18,7 @@ namespace ReadVideo.Server
     {
         public static void Main(string[] args)
         {
+            //   string openAIApiKey = 
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
@@ -34,11 +37,20 @@ namespace ReadVideo.Server
             // Add services to the container.
             builder.Services.AddSingleton<OpenAIClient>(serviceProvider =>
             {
-                string apiKey = Environment.GetEnvironmentVariable(Consts.OpenAIApiKey); // Ensure you have this setting in your appsettings.json or other configuration sources
-                return new OpenAIClient(apiKey);
+                return new OpenAIClient(Environment.GetEnvironmentVariable(Consts.OpenAIApiKey));
             });
 
             builder.Services.AddSingleton<IAssistantServiceBase, OpenAIAssistantService>();
+            builder.Services.AddScoped<IEmbeddingStorageService, SingleStoreService>(serviceProvider =>
+            {
+                return new SingleStoreService(Environment.GetEnvironmentVariable(Consts.SingleStoreConnectionStr));
+            });
+            
+            builder.Services.AddSingleton<IEmbeddingGenerator, OpenAIEmbeddingGenerator>(serviceProvider =>
+            {
+                return new OpenAIEmbeddingGenerator(Environment.GetEnvironmentVariable(Consts.OpenAIApiKey));
+            });
+            
 
             var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
             var mongoDbConnectionString = Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar);
