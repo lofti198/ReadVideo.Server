@@ -2,57 +2,62 @@
 {
     using System.Net.Http;
     using System.Text;
+    using System.Text.Json;
     using System.Threading.Tasks;
     using Amazon.Runtime.Internal.Util;
     using Newtonsoft.Json;
+    using ReadVideo.Server.Data;
 
-
-    public interface IJivoService
+    // https://www.jivo.ru/docs/bot/
+    public class JivoSiteService : IJivoSiteService
     {
-    }
+        private readonly IHttpClientFactory _httpClientFactory;
 
-    public class JivoService : IJivoService
-    {
-        private readonly HttpClient _httpClient;
-        private readonly string _jivoEndpoint;
-
-        public JivoService(HttpClient httpClient, string jivoEndpoint)
+        public JivoSiteService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
-            _jivoEndpoint = jivoEndpoint; // Your JivoChat Bot API endpoint
+            _httpClientFactory = httpClientFactory;
         }
 
-        public async Task SendBotMessageAsync(string clientId, string chatId, string message)
+        public async Task<string> SendMessageAsync(string clientId, string chatId, string messageText)
         {
-            var botMessage = new
+            var botResponse = new BotResponse
             {
-                id = Guid.NewGuid().ToString(),
-                client_id = clientId,
-                chat_id = chatId,
-                message = new
+                Id = Guid.NewGuid().ToString(),
+                ClientId = clientId,
+                ChatId = chatId,
+                Message = new BotMessage
                 {
-                    type = "TEXT",
-                    text = message,
+                    Text = messageText,
+                    Type = "TEXT",
+                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 },
-            event1 = "BOT_MESSAGE"
-        };
+                Event = "BOT_MESSAGE"
+            };
 
-        string json = JsonConvert.SerializeObject(botMessage);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        await _httpClient.PostAsync(_jivoEndpoint, content);
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var jsonResponse = System.Text.Json.JsonSerializer.Serialize(botResponse, options);
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var url = "https://bot.jivosite.com/webhooks/t1iWHhKC6aSYEgz/startspeaking";
+            var content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync(url, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                throw new HttpRequestException($"Request to JivoSite failed with status code: {response.StatusCode}");
+            }
+        }
     }
 
 
-    public async Task HandleClientMessageAsync(dynamic clientMessage)
+    public interface IJivoSiteService
     {
-        // Extract needed information from clientMessage
-        // For example: var text = clientMessage.message.text;
-
-        // Process the message, interact with OpenAI or other services as needed
-
-        // Respond back to JivoChat with a BOT_MESSAGE
-        await SendBotMessageAsync(clientMessage.client_id.ToString(), clientMessage.chat_id.ToString(), "Your response here");
+        Task<string> SendMessageAsync(string clientId, string chatId, string messageText);
     }
-}
 
 }

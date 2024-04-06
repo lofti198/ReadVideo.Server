@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using ReadVideo.Server.Data;
 using ReadVideo.Server.Middleware;
 using ReadVideo.Server.Models;
+using ReadVideo.Server.Services;
 using ReadVideo.Server.Services.AIAssistants;
 using ReadVideo.Server.Services.AIAssistants.Decorators;
 using ReadVideo.Server.Services.Embeddings.Generation;
@@ -21,6 +22,9 @@ namespace ReadVideo.Server
             builder.Services.AddControllers();
             // builder.Services.AddNewtonsoftJson();
             builder.Services.AddTransient<IYoutubeSubtitleService, YoutubeSubtitleService>();
+            builder.Services.AddHttpClient();
+            builder.Services.AddScoped<IJivoSiteService, JivoSiteService>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAnyOrigin", builder =>
