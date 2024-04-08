@@ -33,8 +33,8 @@ namespace ReadVideo.Server.Services.AIAssistants.Decorators
                     $"Ответ: {faqItem.Reply}{Environment.NewLine}" +
                     $"Ссылка: {faqItem.Reply}{Environment.NewLine}");
             }
-            
-            return await _decoratedAssistant.GetResponseAsync(decoratedInput.ToString(), assistantId, threadId);
+            return decoratedInput.ToString();
+            // return await _decoratedAssistant.GetResponseAsync(decoratedInput.ToString(), assistantId, threadId);
         }
 
     }
