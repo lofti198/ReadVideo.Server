@@ -43,23 +43,56 @@ namespace ReadVideo.Server.Controllers
         //    return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC);
         //}
 
+        //public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
+        //{
+        //    Console.WriteLine($"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId}, Message = {clientMessage.Message.Text}");
+        //    Debug.WriteLine($"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId}, Message = {clientMessage.Message.Text}");
+
+        //    string openAIResponseText = await _assistant.GetResponseAsync(clientMessage.Message.Text, assistantId, clientMessage.ChatId);
+
+        //    var responseContent = await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, openAIResponseText);
+
+        //    var combinedResponse = new
+        //    {
+        //        JivoSiteResponse = responseContent,
+        //        OpenAIResponse = openAIResponseText
+        //    };
+
+        //    return Ok(combinedResponse);
+
+        //}
+
         public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
         {
             Console.WriteLine($"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId}, Message = {clientMessage.Message.Text}");
             Debug.WriteLine($"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId}, Message = {clientMessage.Message.Text}");
 
-            string openAIResponseText = await _assistant.GetResponseAsync(clientMessage.Message.Text, assistantId, clientMessage.ChatId);
+            // Immediately return OK result
+            Task.Run(() => ProcessMessageInBackground(clientMessage));
 
-            var responseContent = await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, openAIResponseText);
+            return Ok();
+        }
 
-            var combinedResponse = new
+
+        private async Task ProcessMessageInBackground(ClientMessage clientMessage)
+        {
+            try
             {
-                JivoSiteResponse = responseContent,
-                OpenAIResponse = openAIResponseText
-            };
+                string openAIResponseText = await _assistant.GetResponseAsync(clientMessage.Message.Text, Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
-            return Ok(combinedResponse);
+                await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, openAIResponseText);
 
+                Debug.WriteLine("Processed in BG");
+                Console.WriteLine("Processed in BG");
+                // Log success or perform any follow-up actions
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                Debug.WriteLine($"Error processing message in background: {ex.Message}");
+                Console.WriteLine($"Error processing message in background: {ex.Message}");
+               
+            }
         }
     }
 }
