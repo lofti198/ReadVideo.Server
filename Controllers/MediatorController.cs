@@ -37,11 +37,11 @@ namespace ReadVideo.Server.Controllers
             return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC);
         }
 
-        //[HttpPost("Datacol")]
-        //public async Task<IActionResult> Datacol([FromBody] ClientMessage clientMessage)
-        //{
-        //    return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC);
-        //}
+        [HttpPost("Datacol")]
+        public async Task<IActionResult> Datacol([FromBody] ClientMessage clientMessage)
+        {
+            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC);
+        }
 
         //public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
         //{
