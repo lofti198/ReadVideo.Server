@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using ReadVideo.Server.Data;
 using ReadVideo.Server.Services;
 using ReadVideo.Server.Services.AIAssistants;
+using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -45,6 +46,7 @@ namespace ReadVideo.Server.Controllers
         public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
         {
             Console.WriteLine($"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId}, Message = {clientMessage.Message.Text}");
+            Debug.WriteLine($"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId}, Message = {clientMessage.Message.Text}");
 
             string openAIResponseText = await _assistant.GetResponseAsync(clientMessage.Message.Text, assistantId, clientMessage.ChatId);
 

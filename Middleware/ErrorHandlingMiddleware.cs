@@ -2,6 +2,7 @@
 using ReadVideo.Services.YoutubeManagement;
 using System.Net;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace ReadVideo.Server.Middleware
 {
@@ -18,6 +19,7 @@ namespace ReadVideo.Server.Middleware
         {
             try
             {
+                Debug.WriteLine("Error handling middleware");
                 await _next(context);
             }
             //catch (VideoDurationExceededException ex)
