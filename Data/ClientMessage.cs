@@ -10,6 +10,11 @@
         [JsonPropertyName("site_id")]
         public string SiteId { get; set; }
 
+
+        [JsonPropertyName("button_id")]
+        public int ButtonId { get; set; }
+        
+
         [JsonPropertyName("client_id")]
         public string ClientId { get; set; }
 

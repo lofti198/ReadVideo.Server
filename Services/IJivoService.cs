@@ -27,6 +27,7 @@
                 ChatId = chatId,
                 Message = new BotMessage
                 {
+                    Text = $"TEXT: {messageText}",
                     Content = messageText,
                     Type = "MARKDOWN",
                     Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()

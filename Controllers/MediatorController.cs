@@ -64,7 +64,7 @@ namespace ReadVideo.Server.Controllers
 
         public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
         {
-            string log = $"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId},ClientId = {clientMessage.ClientId}, Message = {clientMessage.Message.Text}";
+            string log = $"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId},ClientId = {clientMessage.ClientId}, ButtonId = {clientMessage.ButtonId},Message = {clientMessage.Message.Text}";
             Console.WriteLine(log);
             Debug.WriteLine(log);
 
