@@ -34,6 +34,9 @@
         [JsonPropertyName("text")]
         public string Text { get; set; } // The message text
 
+        [JsonPropertyName("content")]
+        public string Content { get; set; } // The message text
+
         [JsonPropertyName("timestamp")]
         public long Timestamp { get; set; } // CURRENT_TIME_STAMP
     }
