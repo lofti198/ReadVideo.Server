@@ -30,8 +30,8 @@ namespace ReadVideo.Server.Services.AIAssistants.Decorators
             foreach ( var faqItem in faqItems )
             {
                 decoratedInput.Append($"Вопрос: {faqItem.Question}{Environment.NewLine}"+
-                    $"Ответ: {faqItem.Reply}{Environment.NewLine}" +
-                    $"Ссылка: {faqItem.Reply}{Environment.NewLine}");
+                    // $"Ответ: {faqItem.Reply}{Environment.NewLine}" +
+                    $"Ссылка: {faqItem.Url}{Environment.NewLine}");
             }
             return decoratedInput.ToString();
             // return await _decoratedAssistant.GetResponseAsync(decoratedInput.ToString(), assistantId, threadId);
