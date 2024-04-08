@@ -22,16 +22,21 @@ namespace ReadVideo.Server.Services.AIAssistants.Decorators
 
             //StringBuilder decoratedInput = new StringBuilder($"Here is user question: {userInput}{Environment.NewLine}"+
             //    $"Here are FAQ articles, which could be helpful to build the answer{Environment.NewLine}{Environment.NewLine}");
-            StringBuilder decoratedInput = new StringBuilder($"Вот текущий вопрос пользователя: {userInput}{Environment.NewLine}" +
-                $"Вот статьи из FAQ, которые могут пригодиться для формирования ответа:{Environment.NewLine}{Environment.NewLine}");
+            StringBuilder decoratedInput = new StringBuilder();
+                
+                //new StringBuilder($"Вот текущий вопрос пользователя: {userInput}{Environment.NewLine}" +
+                //$"Вот статьи из FAQ, которые могут пригодиться для формирования ответа:{Environment.NewLine}{Environment.NewLine}");
 
 
 
             foreach ( var faqItem in faqItems )
             {
-                decoratedInput.Append($"Вопрос: {faqItem.Question}{Environment.NewLine}"+
+                //decoratedInput.Append($"Вопрос: {faqItem.Question}{Environment.NewLine}"+
+                //    $"Ответ: {faqItem.Reply}{Environment.NewLine}" +
+                //    $"Ссылка: {faqItem.Url}{Environment.NewLine}");
+                decoratedInput.Append($"{faqItem.Question}{Environment.NewLine}" +
                     // $"Ответ: {faqItem.Reply}{Environment.NewLine}" +
-                    $"Ссылка: {faqItem.Url}{Environment.NewLine}");
+                    $"{faqItem.Url}{Environment.NewLine}");
             }
             return decoratedInput.ToString();
             // return await _decoratedAssistant.GetResponseAsync(decoratedInput.ToString(), assistantId, threadId);
