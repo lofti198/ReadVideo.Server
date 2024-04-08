@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ReadVideo.Server.Controllers
 {
@@ -83,6 +84,7 @@ namespace ReadVideo.Server.Controllers
 
                 await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, openAIResponseText);
 
+                await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId, "title","text",new List<Button>() { new Button() { Text="yes",Id=1 } });
                 Debug.WriteLine("Processed in BG");
                 Console.WriteLine("Processed in BG");
                 // Log success or perform any follow-up actions
