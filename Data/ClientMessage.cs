@@ -11,10 +11,6 @@
         public string SiteId { get; set; }
 
 
-        [JsonPropertyName("button_id")]
-        public int ButtonId { get; set; }
-        
-
         [JsonPropertyName("client_id")]
         public string ClientId { get; set; }
 
@@ -62,6 +58,11 @@
 
         [JsonPropertyName("timestamp")]
         public long Timestamp { get; set; }
+
+
+        [JsonPropertyName("button_id")]
+        public int ButtonId { get; set; }
+
     }
 
     public class Channel
