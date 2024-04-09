@@ -1,17 +1,12 @@
 ﻿using Newtonsoft.Json;
+using ReadVideo.Server.Data;
 using SingleStoreConnector;
 using System.Data;
+using System.Text;
 
 namespace ReadVideo.Server.Services.Embeddings.Storage
 {
-
-    public struct FAQItem
-    {
-        public string Question { get; set; }
-        public string Reply { get; set; }
-        public string Url { get; set; }
-        public double Score { get; set; }
-    }
+    
 
     public class SingleStoreService : IDisposable, IEmbeddingStorageService
     {

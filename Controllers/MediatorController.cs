@@ -6,6 +6,7 @@ using ReadVideo.Server.Data;
 using ReadVideo.Server.Services;
 using ReadVideo.Server.Services.AIAssistants;
 using ReadVideo.Server.Services.Embeddings;
+using ReadVideo.Server.Services.Embeddings.Storage;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -98,19 +99,24 @@ namespace ReadVideo.Server.Controllers
                 {
                     Console.WriteLine($"Ask assistant to extract answer");
 
-                    string assistantResponse = await _assistant.GetResponseAsync("",
-                        _chatDataStorage.GetLastData(clientMessage.ClientId, clientMessage.ChatId), 
+                    ChatData chatData = _chatDataStorage.GetLastData(clientMessage.ClientId, clientMessage.ChatId);
+                    string assistantResponse = await _assistant.GetResponseAsync(chatData.UserRequest,
+                        chatData.FaqItems.BuildAssistantInstruction(), 
                         Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
                     // Call assistant here, passing last RAG
                 }
                 else
                 {
-                    string faqLinks = await _embeddingManager.GetResponseAsync(clientMessage.Message.Text);
-                    
-                    _chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, faqLinks);
+                    List<FAQItem> faqLinks = await _embeddingManager.GetResponseAsync(clientMessage.Message.Text);
+
+                    _chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, new ChatData()
+                    {
+                        FaqItems = faqLinks,
+                        UserRequest = clientMessage.Message.Text
+                    }) ;
                         //await _assistant.GetResponseAsync(clientMessage.Message.Text,"", Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
-                    await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks);
+                    await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks.BuildFAQReference());
 
                     await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId, 
                         "title", "text", 

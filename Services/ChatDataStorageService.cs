@@ -1,28 +1,31 @@
-﻿namespace ReadVideo.Server.Services
+﻿using ReadVideo.Server.Data;
+using ReadVideo.Server.Services.Embeddings.Storage;
+
+namespace ReadVideo.Server.Services
 {
 
     public class ChatDataStorageService : IChatDataStorageService
     {
-        private readonly Dictionary<(string ClientId, string ChatId), string> _messages = new();
+        private readonly Dictionary<(string ClientId, string ChatId), ChatData> _messages = new();
 
-        public void SaveData(string clientId, string chatId, string message)
+        public void SaveData(string clientId, string chatId, ChatData chatData)
         {
             var key = (ClientId: clientId, ChatId: chatId);
-            _messages[key] = message;
+            _messages[key] = chatData;// new ChatData { UserRequest = userRequest, FaqItems = faqItems };
         }
 
-        public string GetLastData(string clientId, string chatId)
+        public ChatData GetLastData(string clientId, string chatId)
         {
             var key = (ClientId: clientId, ChatId: chatId);
-            _messages.TryGetValue(key, out var message);
-            return message;
+            _messages.TryGetValue(key, out var chatData);
+            return chatData;
         }
     }
 
     public interface IChatDataStorageService
     {
-        void SaveData(string clientId, string chatId, string message);
+        void SaveData(string clientId, string chatId, ChatData chatData);
 
-        string GetLastData(string clientId, string chatId);
+        ChatData GetLastData(string clientId, string chatId);
     }
 }
