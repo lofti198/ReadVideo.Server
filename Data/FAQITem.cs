@@ -15,7 +15,7 @@ namespace ReadVideo.Server.Data
         public static string BuildAssistantInstruction(this List<FAQItem> faqItems)
         {
             StringBuilder output = new StringBuilder(//$"Вот текущий вопрос пользователя: {userInput}{Environment.NewLine}" +
-            $"Вот статьи из FAQ, которые могут пригодиться для формирования ответа:{Environment.NewLine}{Environment.NewLine}");
+            $"Вот статьи из FAQ, которые могут пригодиться для формирования ответа. Если ответ найден в них, то добавляй к нему ссылки на статьи, в которых он найден.{Environment.NewLine}{Environment.NewLine}");
 
             foreach (var faqItem in faqItems)
             {
