@@ -25,19 +25,19 @@ namespace ReadVideo.Server.Controllers
         private readonly IJivoSiteService _jivoSiteService;
         private readonly IChatDataStorageService _chatDataStorage;
         private readonly IEmbeddingManager _embeddingManager;
-        private readonly IHelloMessageDetector _helloMessageDetector;
+        private readonly IMessageEvaluator _messageEvaluator;
 
         public MediatorController(IAssistant assistant, IHttpClientFactory httpClientFactory,
             IJivoSiteService jivoSiteService, IChatDataStorageService chatDataStorage,
             IEmbeddingManager embeddingManager,
-            IHelloMessageDetector helloMessageDetector)//IJivoService jivoService, IOpenAIService openAIService)
+            IMessageEvaluator messageEvaluator)//IJivoService jivoService, IOpenAIService openAIService)
         {
             _assistant = assistant;
             _httpClientFactory = httpClientFactory;
             _jivoSiteService = jivoSiteService;
             _chatDataStorage = chatDataStorage;
             _embeddingManager = embeddingManager;
-            _helloMessageDetector = helloMessageDetector;
+            _messageEvaluator = messageEvaluator;
             //_jivoService = jivoService;
             //_openAIService = openAIService;
         }
@@ -118,12 +118,16 @@ namespace ReadVideo.Server.Controllers
                 else
                 {
                     // Check if just hello
-                    bool justHello = false;// await _helloMessageDetector.IsHelloMessage(clientMessage.Message.Text);
+                    var messageFeatures = await _messageEvaluator.EvaluateMessageFeatures(clientMessage.Message.Text);
                     // here
-                    if(justHello)
+                    if(!messageFeatures.Complex)
                     {
                         await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, 
                             "Я AI помощник поддержки Datacol. Пожалуйста, задайте свой вопрос");
+                    }
+                    else if (!messageFeatures.Critical)
+                    {
+                        await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Вопрос критичный. Передаю на поддержку!");
                     }
                     else
                     {

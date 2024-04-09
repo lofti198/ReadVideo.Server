@@ -5,46 +5,52 @@ using System.Text.Json.Serialization;
 
 namespace ReadVideo.Server.Services
 {
-    public class HelloMessageDetector : IHelloMessageDetector
+    public class MessageEvaluator : IMessageEvaluator
     {
         private readonly IAssistant _assistant;
 
-        public HelloMessageDetector(IAssistant assistant)
+        public MessageEvaluator(IAssistant assistant)
         {
             _assistant = assistant;
         }
-        public async Task<bool>IsHelloMessage(string text)
+      
+        public async Task<MessageFeatures> EvaluateMessageFeatures(string text)
         {
-            string response = await _assistant.GetResponseAsync(text, "",
+            string result = await _assistant.GetResponseAsync(text, "",
                 Consts.GeneralOpenAIAssistantID_HelloDetector, "0");
-
-            bool isComplex = ParseComplexValue(response);
-            return !isComplex;
+            return ParseComplexValue(result);
         }
 
-        private static bool ParseComplexValue(string jsonString)
+        private static MessageFeatures ParseComplexValue(string jsonString)
         {
             try
             {
-                JsonStructure parsedObject = JsonConvert.DeserializeObject<JsonStructure>(jsonString);
-                return parsedObject.Complex;
+                MessageFeatures parsedObject = JsonConvert.DeserializeObject<MessageFeatures>(jsonString);
+                return parsedObject;
             }
             catch (Exception ex)
             {
                 // Handle or log parsing errors
                 Console.WriteLine("Error parsing JSON: " + ex.Message);
-                return false; // Or handle this scenario as needed
+                return null; // Or handle this scenario as needed
             }
         }
-        public class JsonStructure
-        {
-            [JsonPropertyName("complex")]
-            public bool Complex { get; set; }
-        }
+      
     }
-    
-    public interface IHelloMessageDetector
+
+    public interface IMessageEvaluator
     {
-        Task<bool> IsHelloMessage(string text);
+        Task<MessageFeatures> EvaluateMessageFeatures(string text);
     }
+    public class MessageFeatures
+    {
+        [JsonPropertyName("complex")]
+        public bool Complex { get; set; }
+
+        [JsonPropertyName("critical")]
+        public bool Critical { get; set; }
+    }
+
+
+
 }
