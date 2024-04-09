@@ -119,7 +119,7 @@ namespace ReadVideo.Server.Controllers
                 {
                     // Check if just hello
                     bool justHello = false;// await _helloMessageDetector.IsHelloMessage(clientMessage.Message.Text);
-
+                    // here
                     if(justHello)
                     {
                         await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, 
