@@ -118,7 +118,7 @@ namespace ReadVideo.Server.Controllers
                 else
                 {
                     // Check if just hello
-                    bool justHello = await _helloMessageDetector.IsHelloMessage(clientMessage.Message.Text);
+                    bool justHello = false;// await _helloMessageDetector.IsHelloMessage(clientMessage.Message.Text);
 
                     if(justHello)
                     {
