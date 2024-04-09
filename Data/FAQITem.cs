@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json;
 
 namespace ReadVideo.Server.Data
 {
@@ -21,13 +22,24 @@ namespace ReadVideo.Server.Data
                 //decoratedInput.Append($"Вопрос: {faqItem.Question}{Environment.NewLine}"+
                 //    $"Ответ: {faqItem.Reply}{Environment.NewLine}" +
                 //    $"Ссылка: {faqItem.Url}{Environment.NewLine}");
-                output.Append($"{faqItem.Question}{Environment.NewLine}" +
-                     $"Ответ: {faqItem.Reply}{Environment.NewLine}");
-                //$"{faqItem.Url}{Environment.NewLine}");
+                output.Append($"# Вопрос: {faqItem.Question}{Environment.NewLine}" +
+                     $"## Ответ: {faqItem.Reply}{Environment.NewLine}" +
+                $"## Ссылка: {faqItem.Url}{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}");
             }
             return output.ToString();
         }
+        public static string BuildAssistantInstructionAsJson(this List<FAQItem> faqItems)
+        {
+            var items = faqItems.Select(faqItem => new
+            {
+                Question = faqItem.Question,
+                Response = faqItem.Reply, // Assuming 'Reply' is the equivalent of 'Response'
+                Url = faqItem.Url
+            }).ToList();
 
+            string jsonString = JsonSerializer.Serialize(items, new JsonSerializerOptions { WriteIndented = true });
+            return jsonString;
+        }
         public static string BuildFAQReference(this List<FAQItem> faqItems)
         {
             StringBuilder output = new StringBuilder();
