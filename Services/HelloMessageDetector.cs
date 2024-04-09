@@ -18,7 +18,8 @@ namespace ReadVideo.Server.Services
             string response = await _assistant.GetResponseAsync(text, "",
                 Consts.GeneralOpenAIAssistantID_HelloDetector, "0");
 
-            return ParseComplexValue(response);
+            bool isComplex = ParseComplexValue(response);
+            return !isComplex;
         }
 
         private static bool ParseComplexValue(string jsonString)
