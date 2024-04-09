@@ -120,14 +120,16 @@ namespace ReadVideo.Server.Controllers
                     // Check if just hello
                     var messageFeatures = await _messageEvaluator.EvaluateMessageFeatures(clientMessage.Message.Text);
                     // here
-                    if(!messageFeatures.Complex)
+                    if(messageFeatures.Critical)
                     {
                         await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, 
-                            "Я AI помощник поддержки Datacol. Пожалуйста, задайте свой вопрос");
+                            "Вопрос критичный. Передаю на поддержку!");
+                        // TODO
                     }
-                    else if (messageFeatures.Critical)
+                    else if (!messageFeatures.Complex)
                     {
-                        await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Вопрос критичный. Передаю на поддержку!");
+                        await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
+                            "Я AI помощник поддержки Datacol. Пожалуйста, задайте свой вопрос");
                     }
                     else
                     {
