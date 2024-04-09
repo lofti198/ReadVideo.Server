@@ -139,10 +139,10 @@ namespace ReadVideo.Server.Controllers
                         await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks.BuildFAQReference());
 
                         await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                            "Invite Assistant", "text",
+                            "Отправить вопрос в поддержку или Сделать саммари с помощью AI", "text",
                             new List<Button>() {
-                            new Button() { Text = "yes", Id = 1 },
-                            new Button() { Text = "summarize", Id = 2 }
+                            new Button() { Text = "В поддержку", Id = 1 },
+                            new Button() { Text = "Саммари", Id = 2 }
                             });
                     }
                     
