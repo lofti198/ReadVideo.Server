@@ -25,16 +25,19 @@ namespace ReadVideo.Server.Controllers
         private readonly IJivoSiteService _jivoSiteService;
         private readonly IChatDataStorageService _chatDataStorage;
         private readonly IEmbeddingManager _embeddingManager;
+        private readonly IHelloMessageDetector _helloMessageDetector;
 
         public MediatorController(IAssistant assistant, IHttpClientFactory httpClientFactory,
             IJivoSiteService jivoSiteService, IChatDataStorageService chatDataStorage,
-            IEmbeddingManager embeddingManager)//IJivoService jivoService, IOpenAIService openAIService)
+            IEmbeddingManager embeddingManager,
+            IHelloMessageDetector helloMessageDetector)//IJivoService jivoService, IOpenAIService openAIService)
         {
             _assistant = assistant;
             _httpClientFactory = httpClientFactory;
             _jivoSiteService = jivoSiteService;
             _chatDataStorage = chatDataStorage;
             _embeddingManager = embeddingManager;
+            _helloMessageDetector = helloMessageDetector;
             //_jivoService = jivoService;
             //_openAIService = openAIService;
         }
@@ -114,23 +117,35 @@ namespace ReadVideo.Server.Controllers
                 }
                 else
                 {
-                    List<FAQItem> faqLinks = await _embeddingManager.GetResponseAsync(clientMessage.Message.Text);
+                    // Check if just hello
+                    bool justHello = await _helloMessageDetector.IsHelloMessage(clientMessage.Message.Text);
 
-                    _chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, new ChatData()
+                    if(justHello)
                     {
-                        FaqItems = faqLinks,
-                        UserRequest = clientMessage.Message.Text
-                    }) ;
+                        await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, 
+                            "Я AI помощник поддержки Datacol. Пожалуйста, задайте свой вопрос");
+                    }
+                    else
+                    {
+                        List<FAQItem> faqLinks = await _embeddingManager.GetResponseAsync(clientMessage.Message.Text);
+
+                        _chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, new ChatData()
+                        {
+                            FaqItems = faqLinks,
+                            UserRequest = clientMessage.Message.Text
+                        });
                         //await _assistant.GetResponseAsync(clientMessage.Message.Text,"", Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
-                    await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks.BuildFAQReference());
+                        await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks.BuildFAQReference());
 
-                    await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                        "Invite Assistant", "text", 
-                        new List<Button>() { 
+                        await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                            "Invite Assistant", "text",
+                            new List<Button>() {
                             new Button() { Text = "yes", Id = 1 },
                             new Button() { Text = "summarize", Id = 2 }
-                        });
+                            });
+                    }
+                    
                 }
                 Debug.WriteLine("Processed in BG");
                 Console.WriteLine("Processed in BG");

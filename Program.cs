@@ -41,7 +41,7 @@ namespace ReadVideo.Server
             {
                 return new OpenAIClient(Environment.GetEnvironmentVariable(Consts.OpenAIApiKey));
             });
-
+            builder.Services.AddSingleton<IHelloMessageDetector, HelloMessageDetector>();
             builder.Services.AddSingleton<IChatDataStorageService, ChatDataStorageService>();
 
             builder.Services.AddSingleton<IEmbeddingStorageService, SingleStoreService>(serviceProvider =>
