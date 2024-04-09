@@ -13,7 +13,7 @@ namespace ReadVideo.Server.Services.AIAssistants
         {
             _client = client;
         }
-        public override async Task<string> GetResponseAsync(string userInput, string assistantId, string externalThreadId)
+        public override async Task<string> GetResponseAsync(string userInput, string additionaInstruction, string assistantId, string externalThreadId)
         {
             string? internalThreadId;
             _externalThreadToAssistantDict.TryGetValue(externalThreadId, out internalThreadId);
@@ -40,7 +40,9 @@ namespace ReadVideo.Server.Services.AIAssistants
             {
                 Assistant_Id = assistantId,
                 Thread_Id = internalThreadId,
-                Stream = true
+                Stream = true,
+                Temperature = 0,
+
             };
             StringBuilder openAIResponseText = new StringBuilder();
 

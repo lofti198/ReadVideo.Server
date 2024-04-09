@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using ReadVideo.Server.Data;
 using ReadVideo.Server.Services;
 using ReadVideo.Server.Services.AIAssistants;
+using ReadVideo.Server.Services.Embeddings;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -21,13 +22,18 @@ namespace ReadVideo.Server.Controllers
         private readonly IAssistant _assistant; // Service to interact with OpenAI API
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IJivoSiteService _jivoSiteService;
+        private readonly IChatDataStorageService _chatDataStorage;
+        private readonly IEmbeddingManager _embeddingManager;
 
         public MediatorController(IAssistant assistant, IHttpClientFactory httpClientFactory,
-            IJivoSiteService jivoSiteService)//IJivoService jivoService, IOpenAIService openAIService)
+            IJivoSiteService jivoSiteService, IChatDataStorageService chatDataStorage,
+            IEmbeddingManager embeddingManager)//IJivoService jivoService, IOpenAIService openAIService)
         {
             _assistant = assistant;
             _httpClientFactory = httpClientFactory;
             _jivoSiteService = jivoSiteService;
+            _chatDataStorage = chatDataStorage;
+            _embeddingManager = embeddingManager;
             //_jivoService = jivoService;
             //_openAIService = openAIService;
         }
@@ -65,6 +71,7 @@ namespace ReadVideo.Server.Controllers
 
         public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
         {
+           
             string log = $"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId},ClientId = {clientMessage.ClientId}, ButtonId = {clientMessage.Message.ButtonId},Message = {clientMessage.Message.Text}";
             Console.WriteLine(log);
             Debug.WriteLine(log);
@@ -80,11 +87,38 @@ namespace ReadVideo.Server.Controllers
         {
             try
             {
-                string openAIResponseText = await _assistant.GetResponseAsync(clientMessage.Message.Text, Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
+                // _chatDataStorage
+                // User choose to invite operator
+                if (clientMessage.Message.ButtonId == 1)
+                {
+                    Console.WriteLine($"Invite agent");
+                    await _jivoSiteService.InviteAgentAsync(clientMessage.ClientId, clientMessage.ChatId);                    
+                }
+                else if (clientMessage.Message.ButtonId == 2)
+                {
+                    Console.WriteLine($"Ask assistant to extract answer");
 
-                await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, openAIResponseText);
+                    string assistantResponse = await _assistant.GetResponseAsync("",
+                        _chatDataStorage.GetLastData(clientMessage.ClientId, clientMessage.ChatId), 
+                        Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
+                    // Call assistant here, passing last RAG
+                }
+                else
+                {
+                    string faqLinks = await _embeddingManager.GetResponseAsync(clientMessage.Message.Text);
+                    
+                    _chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, faqLinks);
+                        //await _assistant.GetResponseAsync(clientMessage.Message.Text,"", Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
-                await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId, "title","text",new List<Button>() { new Button() { Text="yes",Id=1 } });
+                    await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks);
+
+                    await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId, 
+                        "title", "text", 
+                        new List<Button>() { 
+                            new Button() { Text = "yes", Id = 1 },
+                            new Button() { Text = "summarize", Id = 2 }
+                        });
+                }
                 Debug.WriteLine("Processed in BG");
                 Console.WriteLine("Processed in BG");
                 // Log success or perform any follow-up actions

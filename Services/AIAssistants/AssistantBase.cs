@@ -2,7 +2,7 @@
 {
     public abstract class AssistantBase : IAssistant
     {
-        public abstract Task<string> GetResponseAsync(string userInput, string assistantId, string threadId);
+        public abstract Task<string> GetResponseAsync(string userInput, string additionaInstruction, string assistantId, string threadId);
     }
 
 }

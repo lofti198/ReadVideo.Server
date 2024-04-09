@@ -21,7 +21,7 @@
         // New method to send a message with buttons
         public async Task<string> SendMessageWithButtonsAsync(string clientId, string chatId, string title, string text, List<Button> buttons)
         {
-        https://www.jivo.ru/docs/bot/#bot-message
+            // https://www.jivo.ru/docs/bot/#bot-message
             var botResponse = new BotResponse
             {
                 Id = Guid.NewGuid().ToString(),
@@ -97,6 +97,35 @@
                 throw new HttpRequestException($"Request to JivoSite failed with status code: {response.StatusCode}");
             }
         }
+        public async Task<string> InviteAgentAsync(string clientId, string chatId)
+        {
+            var botResponse = new BotResponse
+            {
+                Id = Guid.NewGuid().ToString(), // Unique identifier for the request
+                ClientId = clientId,            // Client ID from the request
+                ChatId = chatId,                // Chat ID from the request
+                Event = "INVITE_AGENT"          // Event type to invite an agent
+            };
+
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var jsonResponse = System.Text.Json.JsonSerializer.Serialize(botResponse, options);
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var url = "https://bot.jivosite.com/webhooks/t1iWHhKC6aSYEgz/startspeaking"; // Assuming the same endpoint
+            var content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync(url, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                throw new HttpRequestException($"Request to JivoSite failed with status code: {response.StatusCode}");
+            }
+        }
+
     }
 
 
@@ -106,7 +135,7 @@
 
         Task<string> SendMessageWithButtonsAsync(string clientId, string chatId, string title, string text, List<Button> buttons);
 
-
+        Task<string> InviteAgentAsync(string clientId, string chatId);
     }
 
 }

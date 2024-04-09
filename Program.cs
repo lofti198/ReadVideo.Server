@@ -1,11 +1,12 @@
 using HigLabo.OpenAI;
+using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using ReadVideo.Server.Data;
 using ReadVideo.Server.Middleware;
 using ReadVideo.Server.Models;
 using ReadVideo.Server.Services;
 using ReadVideo.Server.Services.AIAssistants;
-using ReadVideo.Server.Services.AIAssistants.Decorators;
+using ReadVideo.Server.Services.Embeddings;
 using ReadVideo.Server.Services.Embeddings.Generation;
 using ReadVideo.Server.Services.Embeddings.Storage;
 using ReadVideo.Services.YoutubeManagement;
@@ -41,27 +42,43 @@ namespace ReadVideo.Server
                 return new OpenAIClient(Environment.GetEnvironmentVariable(Consts.OpenAIApiKey));
             });
 
-            builder.Services.AddSingleton<IAssistant, OpenAIAssistant>();
+            builder.Services.AddSingleton<IChatDataStorageService, ChatDataStorageService>();
 
             builder.Services.AddSingleton<IEmbeddingStorageService, SingleStoreService>(serviceProvider =>
             {
                 return new SingleStoreService(Environment.GetEnvironmentVariable(Consts.SingleStoreConnectionStr));
             });
-            
             builder.Services.AddSingleton<IEmbeddingGenerator, OpenAIEmbeddingGenerator>(serviceProvider =>
             {
                 return new OpenAIEmbeddingGenerator(Environment.GetEnvironmentVariable(Consts.OpenAIApiKey));
             });
 
+            builder.Services.AddSingleton<IAssistant, OpenAIAssistant>();
+            builder.Services.AddSingleton<IEmbeddingManager, EmbeddingManager>();
+
+
+
+            //builder.Services.AddKeyedSingleton<IAssistant, OpenAIAssistant>("key1");
+
+            //builder.Services.AddKeyedSingleton<IAssistant>("key2", serviceProvider =>
+            //{
+            //    var originalAssistant = serviceProvider.GetRequiredServiceByKey<IAssistant>("key1");
+            //    var embeddingGenerator = serviceProvider.GetRequiredService<IEmbeddingGenerator>();
+            //    var embeddingStorageService = serviceProvider.GetRequiredService<IEmbeddingStorageService>();
+            //    return new EmbeddingsAssistantDecorator(originalAssistant, embeddingGenerator, embeddingStorageService);
+            //});
+
+            //builder.Services.AddKeyedSingleton<IAssistant, OpenAIAssistant>("assistant");
+            //builder.Services.AddKeyedSingleton<IAssistant,OpenAIEmbeddingAssistant>("emb-assistant");
 
 
             // Register the decorator, ensuring it wraps the original IAssistant
-            builder.Services.Decorate<IAssistant>((inner, serviceProvider) =>
-            {
-                var embeddingGenerator = serviceProvider.GetRequiredService<IEmbeddingGenerator>();
-                var embeddingStorageService = serviceProvider.GetRequiredService<IEmbeddingStorageService>();
-                return new EmbeddingsAssistantDecorator(inner, embeddingGenerator, embeddingStorageService);
-            });
+            //builder.Services.Decorate<IAssistant>((inner, serviceProvider) =>
+            //{
+            //    var embeddingGenerator = serviceProvider.GetRequiredService<IEmbeddingGenerator>();
+            //    var embeddingStorageService = serviceProvider.GetRequiredService<IEmbeddingStorageService>();
+            //    return new EmbeddingsAssistantDecorator(inner, embeddingGenerator, embeddingStorageService);
+            //});
 
 
             var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();

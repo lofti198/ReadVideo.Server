@@ -2,6 +2,6 @@
 {
     public interface IAssistant
     {
-        Task<string> GetResponseAsync(string userInput, string assistantId, string threadId);
+        Task<string> GetResponseAsync(string userInput, string additionaInstruction, string assistantId, string threadId);
     }
 }

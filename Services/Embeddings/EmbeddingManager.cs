@@ -1,35 +1,32 @@
-﻿using ReadVideo.Server.Services.Embeddings.Generation;
+﻿
+using HigLabo.OpenAI;
+using ReadVideo.Server.Services.AIAssistants;
+using ReadVideo.Server.Services.Embeddings.Generation;
 using ReadVideo.Server.Services.Embeddings.Storage;
+using System.Collections.Concurrent;
 using System.Text;
 
-namespace ReadVideo.Server.Services.AIAssistants.Decorators
+namespace ReadVideo.Server.Services.Embeddings
 {
-    public class EmbeddingsAssistantDecorator : AssistantDecoratorBase
+    public class EmbeddingManager : IEmbeddingManager
     {
         private readonly IEmbeddingGenerator _embeddingGenerator;
         private readonly IEmbeddingStorageService _embeddingStorageService;
-
-        public EmbeddingsAssistantDecorator(IAssistant decoratedAssistant, IEmbeddingGenerator embeddingGenerator,
-            IEmbeddingStorageService embeddingStorageService) : base(decoratedAssistant)
+        public EmbeddingManager(IEmbeddingGenerator embeddingGenerator,
+            IEmbeddingStorageService embeddingStorageService)
         {
             _embeddingGenerator = embeddingGenerator;
             _embeddingStorageService = embeddingStorageService;
         }
-        public override async Task<string> GetResponseAsync(string userInput, string assistantId, string threadId)
+        public async Task<string> GetResponseAsync(string userInput)
         {
             var vector = await _embeddingGenerator.GetEmbedding(userInput);
             var faqItems = await _embeddingStorageService.GetRowsByVector(vector);
 
-            //StringBuilder decoratedInput = new StringBuilder($"Here is user question: {userInput}{Environment.NewLine}"+
-            //    $"Here are FAQ articles, which could be helpful to build the answer{Environment.NewLine}{Environment.NewLine}");
             StringBuilder decoratedInput = new StringBuilder();
-                
-                //new StringBuilder($"Вот текущий вопрос пользователя: {userInput}{Environment.NewLine}" +
-                //$"Вот статьи из FAQ, которые могут пригодиться для формирования ответа:{Environment.NewLine}{Environment.NewLine}");
 
 
-
-            foreach ( var faqItem in faqItems )
+            foreach (var faqItem in faqItems)
             {
                 //decoratedInput.Append($"Вопрос: {faqItem.Question}{Environment.NewLine}"+
                 //    $"Ответ: {faqItem.Reply}{Environment.NewLine}" +
@@ -41,6 +38,10 @@ namespace ReadVideo.Server.Services.AIAssistants.Decorators
             return decoratedInput.ToString();
             // return await _decoratedAssistant.GetResponseAsync(decoratedInput.ToString(), assistantId, threadId);
         }
+    }
 
+    public interface IEmbeddingManager
+    {
+        Task<string> GetResponseAsync(string userInput);
     }
 }
