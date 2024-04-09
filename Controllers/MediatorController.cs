@@ -125,7 +125,7 @@ namespace ReadVideo.Server.Controllers
                         await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, 
                             "Я AI помощник поддержки Datacol. Пожалуйста, задайте свой вопрос");
                     }
-                    else if (!messageFeatures.Critical)
+                    else if (messageFeatures.Critical)
                     {
                         await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Вопрос критичный. Передаю на поддержку!");
                     }
