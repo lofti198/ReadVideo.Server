@@ -103,7 +103,14 @@ namespace ReadVideo.Server.Controllers
                     string assistantResponse = await _assistant.GetResponseAsync(chatData.UserRequest,
                         chatData.FaqItems.BuildAssistantInstruction(), 
                         Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
+
+                    await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, assistantResponse);
                     // Call assistant here, passing last RAG
+                    await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                        "Invite Assistant", "text",
+                        new List<Button>() {
+                            new Button() { Text = "yes", Id = 1 },
+                        });
                 }
                 else
                 {
@@ -118,8 +125,8 @@ namespace ReadVideo.Server.Controllers
 
                     await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks.BuildFAQReference());
 
-                    await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId, 
-                        "title", "text", 
+                    await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                        "Invite Assistant", "text", 
                         new List<Button>() { 
                             new Button() { Text = "yes", Id = 1 },
                             new Button() { Text = "summarize", Id = 2 }
