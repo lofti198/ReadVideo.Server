@@ -7,6 +7,7 @@ using ReadVideo.Server.Services;
 using ReadVideo.Server.Services.AIAssistants;
 using ReadVideo.Server.Services.Embeddings;
 using ReadVideo.Server.Services.Embeddings.Storage;
+using ReadVideo.Server.Utils;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -22,36 +23,39 @@ namespace ReadVideo.Server.Controllers
         // private readonly IJivoService _jivoService; // Service to interact with Jivo API
         private readonly IAssistant _assistant; // Service to interact with OpenAI API
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IJivoSiteService _jivoSiteService;
+        // private readonly IJivoSiteService _jivoSiteService;
+        DITypeFactoryBase<string, IJivoSiteService> _jivoSiteServiceFactory;
         private readonly IChatDataStorageService _chatDataStorage;
         private readonly IEmbeddingManager _embeddingManager;
         private readonly IMessageEvaluator _messageEvaluator;
 
         public MediatorController(IAssistant assistant, IHttpClientFactory httpClientFactory,
-            IJivoSiteService jivoSiteService, IChatDataStorageService chatDataStorage,
+            IChatDataStorageService chatDataStorage,
             IEmbeddingManager embeddingManager,
-            IMessageEvaluator messageEvaluator)//IJivoService jivoService, IOpenAIService openAIService)
+            IMessageEvaluator messageEvaluator, DITypeFactoryBase<string, IJivoSiteService> jivoSiteServiceFactory)//IJivoService jivoService, IOpenAIService openAIService)
         {
             _assistant = assistant;
             _httpClientFactory = httpClientFactory;
-            _jivoSiteService = jivoSiteService;
+  
             _chatDataStorage = chatDataStorage;
             _embeddingManager = embeddingManager;
             _messageEvaluator = messageEvaluator;
+            _jivoSiteServiceFactory = jivoSiteServiceFactory;
             //_jivoService = jivoService;
             //_openAIService = openAIService;
         }
 
+        // [HttpGet("SomeAction/{key}")]
         [HttpPost("StartSpeaking")]
         public async Task<IActionResult> StartSpeaking([FromBody] ClientMessage clientMessage)
         {
-            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC);
+            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC,"startspeaking");
         }
 
         [HttpPost("Datacol")]
         public async Task<IActionResult> Datacol([FromBody] ClientMessage clientMessage)
         {
-            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC);
+            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC, "datacol");
         }
 
         //public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
@@ -73,7 +77,7 @@ namespace ReadVideo.Server.Controllers
 
         //}
 
-        public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
+        public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId, string token)
         {
            
             string log = $"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId},ClientId = {clientMessage.ClientId}, ButtonId = {clientMessage.Message.ButtonId},Message = {clientMessage.Message.Text}";
@@ -81,22 +85,24 @@ namespace ReadVideo.Server.Controllers
             Debug.WriteLine(log);
 
             // Immediately return OK result
-            Task.Run(() => ProcessMessageInBackground(clientMessage));
+            Task.Run(() => ProcessMessageInBackground(clientMessage, token));
 
             return Ok();
         }
 
 
-        private async Task ProcessMessageInBackground(ClientMessage clientMessage)
+        private async Task ProcessMessageInBackground(ClientMessage clientMessage, string token)
         {
             try
             {
+                var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(token);
+
                 // _chatDataStorage
                 // User choose to invite operator
                 if (clientMessage.Message.ButtonId == 1)
                 {
                     Console.WriteLine($"Invite agent");
-                    await _jivoSiteService.InviteAgentAsync(clientMessage.ClientId, clientMessage.ChatId);                    
+                    await jivoSiteService.InviteAgentAsync(clientMessage.ClientId, clientMessage.ChatId);                    
                 }
                 else if (clientMessage.Message.ButtonId == 2)
                 {
@@ -107,9 +113,9 @@ namespace ReadVideo.Server.Controllers
                         chatData.FaqItems.BuildAssistantInstruction(), 
                         Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
-                    await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, assistantResponse);
+                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, assistantResponse);
                     // Call assistant here, passing last RAG
-                    await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                    await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
                         "Invite Assistant", "text",
                         new List<Button>() {
                             new Button() { Text = "yes", Id = 1 },
@@ -122,13 +128,13 @@ namespace ReadVideo.Server.Controllers
                     // here
                     if(messageFeatures.Critical)
                     {
-                        await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, 
+                        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, 
                             "Вопрос критичный. Передаю на поддержку!");
                         // TODO
                     }
                     else if (!messageFeatures.Complex)
                     {
-                        await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
+                        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
                             "Я AI помощник Datacol. Пожалуйста, задайте свой вопрос");
                     }
                     else
@@ -142,9 +148,9 @@ namespace ReadVideo.Server.Controllers
                         });
                         //await _assistant.GetResponseAsync(clientMessage.Message.Text,"", Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
-                        await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks.BuildFAQReference());
+                        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks.BuildFAQReference());
                         await Task.Delay(1000);
-                        await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                        await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
                             "Удалось ли найти ответ? Если нет, то могу переслать вопрос на email поддержки или составить ответ с помощью AI", "text",
                             new List<Button>() {
                             new Button() { Text = "Переслать поддержке", Id = 1 },

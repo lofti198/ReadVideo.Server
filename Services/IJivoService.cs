@@ -1,21 +1,21 @@
 ﻿namespace ReadVideo.Server.Services
 {
+    using ReadVideo.Server.Data;
     using System.Net.Http;
     using System.Text;
     using System.Text.Json;
     using System.Threading.Tasks;
-    using Amazon.Runtime.Internal.Util;
-    using Newtonsoft.Json;
-    using ReadVideo.Server.Data;
 
     // https://www.jivo.ru/docs/bot/
     public class JivoSiteService : IJivoSiteService
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private object _token;
 
-        public JivoSiteService(IHttpClientFactory httpClientFactory)
+        public JivoSiteService(IHttpClientFactory httpClientFactory, string token)
         {
             _httpClientFactory = httpClientFactory;
+            _token = token;
         }
 
         // New method to send a message with buttons
@@ -47,7 +47,7 @@
             var jsonResponse = System.Text.Json.JsonSerializer.Serialize(botResponse, options);
 
             var httpClient = _httpClientFactory.CreateClient();
-            var url = "https://bot.jivosite.com/webhooks/t1iWHhKC6aSYEgz/startspeaking";
+            var url = $"https://bot.jivosite.com/webhooks/t1iWHhKC6aSYEgz/{_token}";
             var content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
 
             var response = await httpClient.PostAsync(url, content);
@@ -83,7 +83,7 @@
             var jsonResponse = System.Text.Json.JsonSerializer.Serialize(botResponse, options);
 
             var httpClient = _httpClientFactory.CreateClient();
-            var url = "https://bot.jivosite.com/webhooks/t1iWHhKC6aSYEgz/startspeaking";
+            var url = $"https://bot.jivosite.com/webhooks/t1iWHhKC6aSYEgz/{_token}";
             var content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
 
             var response = await httpClient.PostAsync(url, content);
@@ -111,7 +111,7 @@
             var jsonResponse = System.Text.Json.JsonSerializer.Serialize(botResponse, options);
 
             var httpClient = _httpClientFactory.CreateClient();
-            var url = "https://bot.jivosite.com/webhooks/t1iWHhKC6aSYEgz/startspeaking"; // Assuming the same endpoint
+            var url = $"https://bot.jivosite.com/webhooks/t1iWHhKC6aSYEgz/{_token}"; // Assuming the same endpoint
             var content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
 
             var response = await httpClient.PostAsync(url, content);

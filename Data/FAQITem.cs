@@ -42,7 +42,7 @@ namespace ReadVideo.Server.Data
         }
         public static string BuildFAQReference(this List<FAQItem> faqItems)
         {
-            StringBuilder output = new StringBuilder("Эти материалы из базы знаний могут быть полезны: ");
+            StringBuilder output = new StringBuilder($"Эти материалы из базы знаний могут быть полезны:{Environment.NewLine}{Environment.NewLine}");
 
             foreach (var faqItem in faqItems)
             {

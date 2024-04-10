@@ -9,6 +9,7 @@ using ReadVideo.Server.Services.AIAssistants;
 using ReadVideo.Server.Services.Embeddings;
 using ReadVideo.Server.Services.Embeddings.Generation;
 using ReadVideo.Server.Services.Embeddings.Storage;
+using ReadVideo.Server.Utils;
 using ReadVideo.Services.YoutubeManagement;
 
 namespace ReadVideo.Server
@@ -24,7 +25,14 @@ namespace ReadVideo.Server
             // builder.Services.AddNewtonsoftJson();
             builder.Services.AddTransient<IYoutubeSubtitleService, YoutubeSubtitleService>();
             builder.Services.AddHttpClient();
-            builder.Services.AddScoped<IJivoSiteService, JivoSiteService>();
+
+            // Register the generic factory for ISomeClass with the specific factory method
+            builder.Services.AddSingleton<DITypeFactoryBase<string, IJivoSiteService>>(
+                serviceProvider => new DITypeFactoryBase<string, IJivoSiteService>(
+                    serviceProvider,
+                    (sp, key) => new JivoSiteService(sp.GetRequiredService<IHttpClientFactory>(), key)
+                )); 
+            // builder.Services.AddScoped<IJivoSiteService, JivoSiteService>();
 
             builder.Services.AddCors(options =>
             {
@@ -55,30 +63,6 @@ namespace ReadVideo.Server
 
             builder.Services.AddSingleton<IAssistant, OpenAIAssistant>();
             builder.Services.AddSingleton<IEmbeddingManager, EmbeddingManager>();
-
-
-
-            //builder.Services.AddKeyedSingleton<IAssistant, OpenAIAssistant>("key1");
-
-            //builder.Services.AddKeyedSingleton<IAssistant>("key2", serviceProvider =>
-            //{
-            //    var originalAssistant = serviceProvider.GetRequiredServiceByKey<IAssistant>("key1");
-            //    var embeddingGenerator = serviceProvider.GetRequiredService<IEmbeddingGenerator>();
-            //    var embeddingStorageService = serviceProvider.GetRequiredService<IEmbeddingStorageService>();
-            //    return new EmbeddingsAssistantDecorator(originalAssistant, embeddingGenerator, embeddingStorageService);
-            //});
-
-            //builder.Services.AddKeyedSingleton<IAssistant, OpenAIAssistant>("assistant");
-            //builder.Services.AddKeyedSingleton<IAssistant,OpenAIEmbeddingAssistant>("emb-assistant");
-
-
-            // Register the decorator, ensuring it wraps the original IAssistant
-            //builder.Services.Decorate<IAssistant>((inner, serviceProvider) =>
-            //{
-            //    var embeddingGenerator = serviceProvider.GetRequiredService<IEmbeddingGenerator>();
-            //    var embeddingStorageService = serviceProvider.GetRequiredService<IEmbeddingStorageService>();
-            //    return new EmbeddingsAssistantDecorator(inner, embeddingGenerator, embeddingStorageService);
-            //});
 
 
             var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
