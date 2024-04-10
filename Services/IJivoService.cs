@@ -32,7 +32,7 @@
                     Title = title,
                     Text = text,
                     Type = "BUTTONS",
-                    ForceReply = true,
+                    ForceReply = false,
                     Buttons = buttons,
                     Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 },

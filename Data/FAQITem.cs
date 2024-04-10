@@ -42,14 +42,13 @@ namespace ReadVideo.Server.Data
         }
         public static string BuildFAQReference(this List<FAQItem> faqItems)
         {
-            StringBuilder output = new StringBuilder();
+            StringBuilder output = new StringBuilder("Эти материалы из базы знаний могут быть полезны: ");
 
             foreach (var faqItem in faqItems)
             {
-                output.Append($"{faqItem.Question}{Environment.NewLine}" +
-                $"{faqItem.Url}{Environment.NewLine}");
+                output.Append($"[{faqItem.Question}]({faqItem.Url}){Environment.NewLine}{Environment.NewLine}");
             }
-            return output.ToString();
+            return output.ToString().Trim();
         }
     }
     public struct FAQItem

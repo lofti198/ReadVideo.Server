@@ -129,7 +129,7 @@ namespace ReadVideo.Server.Controllers
                     else if (!messageFeatures.Complex)
                     {
                         await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                            "Я AI помощник поддержки Datacol. Пожалуйста, задайте свой вопрос");
+                            "Я AI помощник Datacol. Пожалуйста, задайте свой вопрос");
                     }
                     else
                     {
@@ -143,12 +143,12 @@ namespace ReadVideo.Server.Controllers
                         //await _assistant.GetResponseAsync(clientMessage.Message.Text,"", Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
                         await _jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks.BuildFAQReference());
-
+                        await Task.Delay(1000);
                         await _jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                            "Отправить вопрос в поддержку или Сделать саммари с помощью AI", "text",
+                            "Удалось ли найти ответ? Если нет, то могу переслать вопрос на email поддержки или составить ответ с помощью AI", "text",
                             new List<Button>() {
-                            new Button() { Text = "В поддержку", Id = 1 },
-                            new Button() { Text = "Саммари", Id = 2 }
+                            new Button() { Text = "Переслать поддержке", Id = 1 },
+                            new Button() { Text = "AI ответ", Id = 2 }
                             });
                     }
                     
