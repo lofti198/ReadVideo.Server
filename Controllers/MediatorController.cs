@@ -138,7 +138,7 @@ namespace ReadVideo.Server.Controllers
                     //    LastTextMessage.FaqItems.BuildAssistantInstruction(),
                     //    Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
-                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, LastTextMessage.FaqItems.BuildAssistantInstruction());
+                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, LastTextMessage.FaqItems.BuildFAQReference());
 
                     await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Есть ли у вас еще вопросы?");
 
