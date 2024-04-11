@@ -5,8 +5,48 @@ namespace ReadVideo.Server.Data
 {
     public class ChatData
     {
-        public string UserRequest { get; set; }
-        public List<FAQItem> FaqItems { get; set; } = new List<FAQItem>();
+        public List<ClientToBotMessage> Messages { get; set; } = new List<ClientToBotMessage>();
+        // public string PrevUserRequest { get; set; }
+
+        // public int LastButtonId { get;set; }
+        public void AddMessage(ClientToBotMessage message)=>Messages.Add(message);
+
+        public ChatData(ClientToBotMessage message)
+        {
+            AddMessage(message);
+        }
+
+        public ClientToBotMessage GetLastQuestion()
+        {
+            // Iterate through the Messages list in reverse
+            for (int i = Messages.Count - 1; i >= 0; i--)
+            {
+                // Check if the ButtonId of the message is 0
+                if (Messages[i].ButtonId == 0)
+                {
+                    // If ButtonId is 0, return this message as it's considered a question
+                    return Messages[i];
+                }
+            }
+
+            // If no message meets the criteria, return null or handle accordingly
+            return null;
+        }
+    }
+
+    public class ClientToBotMessage
+    {
+        public string Text { get; set; }
+
+        //TODO: arch - move
+        public List<FAQItem> FaqItems { get; set; } = null;
+        public int ButtonId { get; set; } = 0;
+
+        public ClientToBotMessage(string text, List<FAQItem> faqItems = null)
+        {
+            Text = text;
+            FaqItems = faqItems;
+        }
     }
 
     // Static class for extension methods

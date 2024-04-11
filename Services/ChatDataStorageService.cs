@@ -7,27 +7,32 @@ namespace ReadVideo.Server.Services
     public class ChatDataStorageService : IChatDataStorageService
     {
         // Replace Dictionary with ConcurrentDictionary
-        private readonly ConcurrentDictionary<(string ClientId, string ChatId), ChatData> _messages = new();
+        private readonly ConcurrentDictionary<(string ClientId, string ChatId), ChatData> _chats = new();
 
-        public void SaveData(string clientId, string chatId, ChatData chatData)
+        public void SaveData(string clientId, string chatId, ClientToBotMessage message)
         {
             var key = (ClientId: clientId, ChatId: chatId);
+
             // Use ConcurrentDictionary's AddOrUpdate method for thread-safe write
-            _messages.AddOrUpdate(key, chatData, (key, oldValue) => chatData);
+            _chats.AddOrUpdate(key, new ChatData(message), (key, oldValue) =>
+            {
+                oldValue.AddMessage(message);
+                return oldValue;
+            });
         }
 
-        public ChatData GetLastData(string clientId, string chatId)
+        public ChatData GetChatData(string clientId, string chatId)
         {
             var key = (ClientId: clientId, ChatId: chatId);
             // Use TryGetValue for thread-safe read, no change needed here as ConcurrentDictionary supports this method
-            _messages.TryGetValue(key, out var chatData);
+            _chats.TryGetValue(key, out var chatData);
             return chatData;
         }
     }
 
     public interface IChatDataStorageService
     {
-        void SaveData(string clientId, string chatId, ChatData chatData);
-        ChatData GetLastData(string clientId, string chatId);
+        void SaveData(string clientId, string chatId, ClientToBotMessage message);
+        ChatData GetChatData(string clientId, string chatId);
     }
 }

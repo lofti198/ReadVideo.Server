@@ -97,7 +97,7 @@ namespace ReadVideo.Server.Controllers
             try
             {
                 var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(token);
-
+                List<FAQItem> faqLinks = null;
                 // _chatDataStorage
                 // User choose to invite operator
                 if (clientMessage.Message.ButtonId == 1)
@@ -121,9 +121,10 @@ namespace ReadVideo.Server.Controllers
 
                     Console.WriteLine($"Ask assistant to extract answer");
 
-                    ChatData chatData = _chatDataStorage.GetLastData(clientMessage.ClientId, clientMessage.ChatId);
-                    string assistantResponse = await _assistant.GetResponseAsync(chatData.UserRequest,
-                        chatData.FaqItems.BuildAssistantInstruction(),
+                    ChatData chatData = _chatDataStorage.GetChatData(clientMessage.ClientId, clientMessage.ChatId);
+                    ClientToBotMessage prevQuestion = chatData.GetLastQuestion();
+                    string assistantResponse = await _assistant.GetResponseAsync(prevQuestion.Text,
+                        prevQuestion.FaqItems.BuildAssistantInstruction(),
                         Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
                     await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, assistantResponse);
@@ -166,13 +167,8 @@ namespace ReadVideo.Server.Controllers
                         await Task.Delay(1000);
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Пару секунд, AI готовит ответ...");
 
-                        List<FAQItem> faqLinks = await _embeddingManager.GetResponseAsync(clientMessage.Message.Text);
+                        faqLinks = await _embeddingManager.GetResponseAsync(clientMessage.Message.Text);
 
-                        _chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, new ChatData()
-                        {
-                            FaqItems = faqLinks,
-                            UserRequest = clientMessage.Message.Text
-                        });
                         //await _assistant.GetResponseAsync(clientMessage.Message.Text,"", Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, faqLinks.BuildFAQReference());
@@ -186,6 +182,8 @@ namespace ReadVideo.Server.Controllers
                     }
 
                 }
+
+                _chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, new ClientToBotMessage (clientMessage.Message.Text, faqLinks));
                 Debug.WriteLine("Processed in BG");
                 Console.WriteLine("Processed in BG");
                 // Log success or perform any follow-up actions
