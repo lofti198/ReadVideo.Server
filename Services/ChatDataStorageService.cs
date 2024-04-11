@@ -25,8 +25,9 @@ namespace ReadVideo.Server.Services
         {
             var key = (ClientId: clientId, ChatId: chatId);
             // Use TryGetValue for thread-safe read, no change needed here as ConcurrentDictionary supports this method
-            _chats.TryGetValue(key, out var chatData);
-            return chatData;
+            // _chats.TryGetValue(key, out var chatData);
+            return _chats.GetOrAdd(key, _ => new ChatData());
+            // return chatData;
         }
     }
 

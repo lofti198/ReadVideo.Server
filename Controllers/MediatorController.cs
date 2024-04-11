@@ -146,13 +146,13 @@ namespace ReadVideo.Server.Controllers
                     ClientToBotMessage prevQuestion = chatData.GetLastMessage();
 
                     // choose site
-                    if(prevQuestion.ButtonId==10)
+                    if(prevQuestion!=null && prevQuestion.ButtonId==10)
                     {
                         clientToBotMessage.SpecialId = "10.1:site_input";
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
                                 "Прекрасно, скажи, какие данные нужно собрать?");
                     }
-                    else if(prevQuestion.SpecialId == "10.1:site_input")
+                    else if(prevQuestion != null && prevQuestion.SpecialId == "10.1:site_input")
                     {
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
                                 "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы?");

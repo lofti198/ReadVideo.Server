@@ -16,6 +16,11 @@ namespace ReadVideo.Server.Data
             AddMessage(message);
         }
 
+        public ChatData()
+        {
+            
+        }
+
         public ClientToBotMessage GetLastMessage()
         {
             // Iterate through the Messages list in reverse
