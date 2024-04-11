@@ -16,7 +16,7 @@ namespace ReadVideo.Server.Data
             AddMessage(message);
         }
 
-        public ClientToBotMessage GetLastQuestion()
+        public ClientToBotMessage GetLastMessage()
         {
             // Iterate through the Messages list in reverse
             for (int i = Messages.Count - 1; i >= 0; i--)
@@ -36,6 +36,7 @@ namespace ReadVideo.Server.Data
 
     public class ClientToBotMessage
     {
+        public string SpecialId { get; set; } = "";  
         public string Text { get; set; }
 
         //TODO: arch - move
