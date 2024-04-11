@@ -49,13 +49,13 @@ namespace ReadVideo.Server.Controllers
         [HttpPost("StartSpeaking")]
         public async Task<IActionResult> StartSpeaking([FromBody] ClientMessage clientMessage)
         {
-            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC,"startspeaking");
+            return await JivoMediator(clientMessage, "startspeaking");
         }
 
         [HttpPost("Datacol")]
         public async Task<IActionResult> Datacol([FromBody] ClientMessage clientMessage)
         {
-            return await JivoMediator(clientMessage, Consts.OpenAIAssistantID_DC, "datacol");
+            return await JivoMediator(clientMessage,  "datacol");
         }
 
         //public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId)
@@ -77,10 +77,10 @@ namespace ReadVideo.Server.Controllers
 
         //}
 
-        public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string assistantId, string token)
+        public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string token)
         {
            
-            string log = $"Call JivoMediator assistantId = {assistantId}, ChatId = {clientMessage.ChatId},ClientId = {clientMessage.ClientId}, ButtonId = {clientMessage.Message.ButtonId},Message = {clientMessage.Message.Text}";
+            string log = $"Call JivoMediator Url = {clientMessage.Sender.Url}, SiteId = {clientMessage.SiteId}, ChatId = {clientMessage.ChatId},ClientId = {clientMessage.ClientId}, ButtonId = {clientMessage.Message.ButtonId},Message = {clientMessage.Message.Text}";
             Console.WriteLine(log);
             Debug.WriteLine(log);
 
