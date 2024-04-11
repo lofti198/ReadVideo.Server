@@ -21,11 +21,12 @@ namespace ReadVideo.Server.Data
             
         }
 
-        public ClientToBotMessage GetLastMessage()
+        public ClientToBotMessage GetLastMessage(bool anyMessage=true)
         {
             // Iterate through the Messages list in reverse
             for (int i = Messages.Count - 1; i >= 0; i--)
             {
+                if(anyMessage) return Messages[i];
                 // Check if the ButtonId of the message is 0
                 if (Messages[i].ButtonId == 0)
                 {
@@ -37,6 +38,7 @@ namespace ReadVideo.Server.Data
             // If no message meets the criteria, return null or handle accordingly
             return null;
         }
+       
     }
 
     public class ClientToBotMessage

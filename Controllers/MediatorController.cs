@@ -100,12 +100,17 @@ namespace ReadVideo.Server.Controllers
                 ChatData chatData = _chatDataStorage.GetChatData(clientMessage.ClientId, clientMessage.ChatId);
                 ClientToBotMessage clientToBotMessage = new ClientToBotMessage(clientMessage.Message.Text, clientMessage.Message.ButtonId);
 
-                ClientToBotMessage prevQuestion = chatData.GetLastMessage();
-                if(prevQuestion!=null)
+                // ClientToBotMessage prevQuestion = chatData.GetLastMessage();
+                ClientToBotMessage LastMessage = chatData.GetLastMessage();
+                if (LastMessage != null)
                 {
-                    Console.WriteLine(JsonConvert.SerializeObject(prevQuestion));
+                    Console.WriteLine(JsonConvert.SerializeObject(LastMessage));
                 }
-
+                ClientToBotMessage LastTextMessage = chatData.GetLastMessage(false);
+                if (LastTextMessage != null)
+                {
+                    Console.WriteLine(JsonConvert.SerializeObject(LastTextMessage));
+                }
                 // _chatDataStorage
                 // User choose to invite operator
                 if (clientMessage.Message.ButtonId == 1)
@@ -122,15 +127,15 @@ namespace ReadVideo.Server.Controllers
                     await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Перейдите, пожалуйста [по ссылке](https://web-data-extractor.net/buy/). Если у вас есть дополнительные, вопрос - пожалуйста, задайте их мне.");
 
                 }
-                else if (clientMessage.Message.ButtonId == 2)
+                else if (LastTextMessage != null && clientMessage.Message.ButtonId == 2)
                 {
                     await Task.Delay(1000);
                     await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Пару секунд, AI готовит ответ...");
 
                     Console.WriteLine($"Ask assistant to extract answer");
 
-                    string assistantResponse = await _assistant.GetResponseAsync(prevQuestion.Text,
-                        prevQuestion.FaqItems.BuildAssistantInstruction(),
+                    string assistantResponse = await _assistant.GetResponseAsync(LastTextMessage.Text,
+                        LastTextMessage.FaqItems.BuildAssistantInstruction(),
                         Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
                     await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, assistantResponse);
@@ -148,13 +153,13 @@ namespace ReadVideo.Server.Controllers
                 else
                 {
                     // choose site
-                    if(prevQuestion!=null && prevQuestion.ButtonId==10)
+                    if(LastMessage !=null && LastMessage.ButtonId==10)
                     {
                         clientToBotMessage.SpecialId = "10.1:site_input";
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
                                 "Прекрасно, скажи, какие данные нужно собрать?");
                     }
-                    else if(prevQuestion != null && prevQuestion.SpecialId == "10.1:site_input")
+                    else if(LastMessage != null && LastMessage.SpecialId == "10.1:site_input")
                     {
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
                                 "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы?");
