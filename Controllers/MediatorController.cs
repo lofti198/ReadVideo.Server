@@ -97,54 +97,74 @@ namespace ReadVideo.Server.Controllers
             try
             {
                 var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(token);
-                
+
                 // _chatDataStorage
                 // User choose to invite operator
                 if (clientMessage.Message.ButtonId == 1)
                 {
                     Console.WriteLine($"Invite agent");
-                    await jivoSiteService.InviteAgentAsync(clientMessage.ClientId, clientMessage.ChatId);                    
+                    await jivoSiteService.InviteAgentAsync(clientMessage.ClientId, clientMessage.ChatId);
+                }
+                else if (clientMessage.Message.ButtonId == 10)
+                {
+                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Какой сайт вы хотите парсить?");
+                }
+                else if (clientMessage.Message.ButtonId == 50)
+                {
+                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Перейдите, пожалуйста [по ссылке](https://web-data-extractor.net/buy/). Если у вас есть дополнительные, вопрос - пожалуйста, задайте их мне.");
+
                 }
                 else if (clientMessage.Message.ButtonId == 2)
                 {
                     await Task.Delay(1000);
-                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Пару секунд, AI готовит ответ");
+                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Пару секунд, AI готовит ответ...");
 
                     Console.WriteLine($"Ask assistant to extract answer");
 
                     ChatData chatData = _chatDataStorage.GetLastData(clientMessage.ClientId, clientMessage.ChatId);
                     string assistantResponse = await _assistant.GetResponseAsync(chatData.UserRequest,
-                        chatData.FaqItems.BuildAssistantInstruction(), 
+                        chatData.FaqItems.BuildAssistantInstruction(),
                         Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
 
                     await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, assistantResponse);
+
+                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Есть ли у вас еще вопросы?");
+
                     // Call assistant here, passing last RAG
-                    await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                        "Invite Assistant", "text",
-                        new List<Button>() {
-                            new Button() { Text = "yes", Id = 1 },
-                        });
+                    //await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                    //    "Invite Assistant", "text",
+                    //    new List<Button>() {
+                    //        new Button() { Text = "yes", Id = 1 },
+                    //    });
+
                 }
                 else
                 {
                     // Check if just hello
                     var messageFeatures = await _messageEvaluator.EvaluateMessageFeatures(clientMessage.Message.Text);
                     // here
-                    if(messageFeatures.Critical)
+                    if (messageFeatures.Critical)
                     {
-                        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, 
+                        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
                             "Вопрос критичный. Передаю в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы?");
                         // TODO
                     }
                     else if (!messageFeatures.Complex)
                     {
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                            "Я AI помощник Datacol. Пожалуйста, задайте свой вопрос. Чаще всего, наших клиентов интересуют такие темы: ");
+                            "Я AI помощник Datacol. Пожалуйста, задайте свой вопрос. Также, возможно, вы сразу хотите: ");
+
+                        await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                 "Я AI помощник Datacol. Пожалуйста, задайте свой вопрос. Также, возможно, вы сразу хотите: ", "text",
+                 new List<Button>() {
+                            new Button() { Text = "Описать свою задачу по парсингу", Id = 10 },
+                            new Button() { Text = "Купить программу", Id = 50 }
+                 });
                     }
                     else
                     {
                         await Task.Delay(1000);
-                        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Пару секунд, AI готовит ответ");
+                        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Пару секунд, AI готовит ответ...");
 
                         List<FAQItem> faqLinks = await _embeddingManager.GetResponseAsync(clientMessage.Message.Text);
 
@@ -164,7 +184,7 @@ namespace ReadVideo.Server.Controllers
                             new Button() { Text = "AI ответ", Id = 2 }
                             });
                     }
-                    
+
                 }
                 Debug.WriteLine("Processed in BG");
                 Console.WriteLine("Processed in BG");
