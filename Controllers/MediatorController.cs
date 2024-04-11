@@ -100,7 +100,12 @@ namespace ReadVideo.Server.Controllers
                 ChatData chatData = _chatDataStorage.GetChatData(clientMessage.ClientId, clientMessage.ChatId);
                 ClientToBotMessage clientToBotMessage = new ClientToBotMessage(clientMessage.Message.Text);
 
-                
+                ClientToBotMessage prevQuestion = chatData.GetLastMessage();
+                if(prevQuestion!=null)
+                {
+                    Console.WriteLine(JsonConvert.SerializeObject(prevQuestion));
+                }
+
                 // _chatDataStorage
                 // User choose to invite operator
                 if (clientMessage.Message.ButtonId == 1)
@@ -124,7 +129,6 @@ namespace ReadVideo.Server.Controllers
 
                     Console.WriteLine($"Ask assistant to extract answer");
 
-                    ClientToBotMessage prevQuestion = chatData.GetLastMessage();
                     string assistantResponse = await _assistant.GetResponseAsync(prevQuestion.Text,
                         prevQuestion.FaqItems.BuildAssistantInstruction(),
                         Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
@@ -143,8 +147,6 @@ namespace ReadVideo.Server.Controllers
                 }
                 else
                 {
-                    ClientToBotMessage prevQuestion = chatData.GetLastMessage();
-
                     // choose site
                     if(prevQuestion!=null && prevQuestion.ButtonId==10)
                     {
