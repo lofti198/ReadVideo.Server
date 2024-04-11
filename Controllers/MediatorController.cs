@@ -84,6 +84,7 @@ namespace ReadVideo.Server.Controllers
             Console.WriteLine(log);
             Debug.WriteLine(log);
 
+            
             // Immediately return OK result
             Task.Run(() => ProcessMessageInBackground(clientMessage, token));
 
@@ -96,7 +97,7 @@ namespace ReadVideo.Server.Controllers
             try
             {
                 var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(token);
-
+                
                 // _chatDataStorage
                 // User choose to invite operator
                 if (clientMessage.Message.ButtonId == 1)
@@ -106,6 +107,9 @@ namespace ReadVideo.Server.Controllers
                 }
                 else if (clientMessage.Message.ButtonId == 2)
                 {
+                    await Task.Delay(1000);
+                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Пару секунд, AI готовит ответ");
+
                     Console.WriteLine($"Ask assistant to extract answer");
 
                     ChatData chatData = _chatDataStorage.GetLastData(clientMessage.ClientId, clientMessage.ChatId);
@@ -129,16 +133,19 @@ namespace ReadVideo.Server.Controllers
                     if(messageFeatures.Critical)
                     {
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, 
-                            "Вопрос критичный. Передаю на поддержку!");
+                            "Вопрос критичный. Передаю в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы?");
                         // TODO
                     }
                     else if (!messageFeatures.Complex)
                     {
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                            "Я AI помощник Datacol. Пожалуйста, задайте свой вопрос");
+                            "Я AI помощник Datacol. Пожалуйста, задайте свой вопрос. Чаще всего, наших клиентов интересуют такие темы: ");
                     }
                     else
                     {
+                        await Task.Delay(1000);
+                        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Пару секунд, AI готовит ответ");
+
                         List<FAQItem> faqLinks = await _embeddingManager.GetResponseAsync(clientMessage.Message.Text);
 
                         _chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, new ChatData()
