@@ -98,7 +98,7 @@ namespace ReadVideo.Server.Controllers
             {
                 var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(token);
                 ChatData chatData = _chatDataStorage.GetChatData(clientMessage.ClientId, clientMessage.ChatId);
-                ClientToBotMessage clientToBotMessage = new ClientToBotMessage(clientMessage.Message.Text);
+                ClientToBotMessage clientToBotMessage = new ClientToBotMessage(clientMessage.Message.Text, clientMessage.Message.ButtonId);
 
                 ClientToBotMessage prevQuestion = chatData.GetLastMessage();
                 if(prevQuestion!=null)

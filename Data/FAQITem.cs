@@ -48,10 +48,10 @@ namespace ReadVideo.Server.Data
         public List<FAQItem> FaqItems { get; set; } = null;
         public int ButtonId { get; set; } = 0;
 
-        public ClientToBotMessage(string text, List<FAQItem> faqItems = null)
+        public ClientToBotMessage(string text, int buttonId)
         {
             Text = text;
-            FaqItems = faqItems;
+            ButtonId = buttonId;
         }
     }
 
