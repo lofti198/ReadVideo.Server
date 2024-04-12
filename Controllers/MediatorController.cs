@@ -172,7 +172,7 @@ namespace ReadVideo.Server.Controllers
                         //await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
                         //        "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы?");
                         await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                     "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
+                     "Отлично! Отправили вашу задачу нашим разработчикам. В течение суток вы получите оценку стоимости. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
                      new List<Button>() {
                             new Button() { Text = "Описать еще одну задачу по парсингу", Id = 10 },
                             new Button() { Text = "Купить программу", Id = 50 }
