@@ -162,9 +162,14 @@ namespace ReadVideo.Server.Controllers
                     }
                     else if(LastMessage != null && LastMessage.SpecialId == "10.1:site_input")
                     {
-                        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                                "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы?");
-
+                        //await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
+                        //        "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы?");
+                        await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                     "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
+                     new List<Button>() {
+                            new Button() { Text = "Описать задачу по парсингу", Id = 10 },
+                            new Button() { Text = "Купить программу", Id = 50 }
+                     });
                     }
                     else
                     {
