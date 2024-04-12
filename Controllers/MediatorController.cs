@@ -165,7 +165,7 @@ namespace ReadVideo.Server.Controllers
                     {
                         clientToBotMessage.SpecialId = "10.1:site_input";
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                                "Прекрасно, скажи, какие данные нужно собрать?");
+                                "Прекрасно, скажите, какие данные нужно собрать?");
                     }
                     else if(LastMessage != null && LastMessage.SpecialId == "10.1:site_input")
                     {
