@@ -141,7 +141,14 @@ namespace ReadVideo.Server.Controllers
 
                     await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, LastTextMessage.FaqItems.BuildFAQReference());
 
-                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Есть ли у вас еще вопросы?");
+                    await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                     "Есть ли у вас еще вопросы? Также, возможно, вы хотите: ", "text",
+                     new List<Button>() {
+                            new Button() { Text = "Описать задачу по парсингу", Id = 10 },
+                            // new Button() { Text = "Купить программу", Id = 50 }
+                     });
+
+                    // await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Есть ли у вас еще вопросы?");
 
                     // Call assistant here, passing last RAG
                     //await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
@@ -167,7 +174,7 @@ namespace ReadVideo.Server.Controllers
                         await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
                      "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
                      new List<Button>() {
-                            new Button() { Text = "Описать задачу по парсингу", Id = 10 },
+                            new Button() { Text = "Описать еще одну задачу по парсингу", Id = 10 },
                             new Button() { Text = "Купить программу", Id = 50 }
                      });
                     }
@@ -179,7 +186,7 @@ namespace ReadVideo.Server.Controllers
                         if (messageFeatures.Critical)
                         {
                             await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                                "Данный вопрос относится к критичным, поэтому передаю его сразу в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы?");
+                                "Данный вопрос относится к срочным, поэтому передаю его сразу в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы?");
 
                      //       await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
                      //"Данный вопрос относится к критичным, поэтому передаю его сразу в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
