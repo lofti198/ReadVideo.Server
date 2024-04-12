@@ -124,7 +124,8 @@ namespace ReadVideo.Server.Controllers
                 }
                 else if (clientMessage.Message.ButtonId == 50)
                 {
-                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Перейдите, пожалуйста [по ссылке](https://web-data-extractor.net/buy/). Если у вас есть дополнительные, вопрос - пожалуйста, задайте их мне.");
+                    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
+                        "Перейдите, пожалуйста [по ссылке](https://web-data-extractor.net/buy/). Есть ли у вас еще вопросы?");
 
                 }
                 else if (LastTextMessage != null && clientMessage.Message.ButtonId == 20)
@@ -163,6 +164,7 @@ namespace ReadVideo.Server.Controllers
                     {
                         await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
                                 "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы?");
+
                     }
                     else
                     {
@@ -172,8 +174,14 @@ namespace ReadVideo.Server.Controllers
                         if (messageFeatures.Critical)
                         {
                             await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                                "Вопрос критичный. Передаю в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы?");
-                            // TODO
+                                "Данный вопрос относится к критичным, поэтому передаю его сразу в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы?");
+
+                     //       await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                     //"Данный вопрос относится к критичным, поэтому передаю его сразу в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
+                     //new List<Button>() {
+                     //       new Button() { Text = "Описать задачу по парсингу", Id = 10 },
+                     //       new Button() { Text = "Купить программу", Id = 50 }
+                     //       // TODO
                         }
                         else if (!messageFeatures.Complex)
                         {
@@ -183,7 +191,7 @@ namespace ReadVideo.Server.Controllers
                             await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
                      "Я AI помощник Datacol. Пожалуйста, задайте свой вопрос. Также, возможно, вы сразу хотите: ", "text",
                      new List<Button>() {
-                            new Button() { Text = "Описать свою задачу по парсингу", Id = 10 },
+                            new Button() { Text = "Описать задачу по парсингу", Id = 10 },
                             new Button() { Text = "Купить программу", Id = 50 }
                      });
                         }
