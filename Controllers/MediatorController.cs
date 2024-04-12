@@ -223,7 +223,7 @@ namespace ReadVideo.Server.Controllers
                             await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, assistantResponse);
                             await Task.Delay(1000);
                             await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                                "Удалось ли найти ответ? Если нет, то могу переслать вопрос на email поддержки или показать похожие статьи из базы знаний", "text",
+                                "Удалось ли найти ответ? Если нет, то могу переслать вопрос на email поддержки или показать похожие статьи из базы знаний. Также, вы можете сформулировать вопрос по-другому.", "text",
                                 new List<Button>() {
                             new Button() { Text = "Переслать поддержке", Id = 1 },
                             new Button() { Text = "Показать похожие", Id = 20 }
