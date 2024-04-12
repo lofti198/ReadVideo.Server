@@ -224,7 +224,7 @@ namespace ReadVideo.Server.Controllers
                             await Task.Delay(1000);
 
                             // в базе знаний нет
-                            if (clientMessage.Message.Text.ToLower().Contains("в базе знаний нет"))
+                            if (assistantResponse.ToLower().Contains("в базе знаний нет"))
                             {
                                 await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
                                     "Могу переслать вопрос на email поддержки. Также, вы можете сформулировать вопрос по-другому.", "text",
