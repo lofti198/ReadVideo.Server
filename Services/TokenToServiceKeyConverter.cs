@@ -6,7 +6,7 @@ namespace ReadVideo.Server.Services
     public class TokenToServiceKeyConverter
     {
         public string Convert(string token)
-        {
+        { 
             token = token.ToLower();
             string retVal = token switch
             {

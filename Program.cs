@@ -53,7 +53,8 @@ namespace ReadVideo.Server
                 serviceProvider => new DITypeFactoryBase<string, IEmailSender>(
                     serviceProvider,
                     (sp, key) => {
-                        string jsonSettings = Environment.GetEnvironmentVariable($"{key}_SMTP_SETTING");
+                        string settingKey = sp.GetRequiredService<TokenToServiceKeyConverter>().Convert(key);
+                        string jsonSettings = Environment.GetEnvironmentVariable($"{settingKey}_SMTP_SETTING");
 
                         if (!string.IsNullOrEmpty(jsonSettings))
                         {
