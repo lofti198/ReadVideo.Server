@@ -1,22 +1,8 @@
-﻿using Amazon.Runtime;
-using HigLabo.OpenAI;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Mvc;
 using ReadVideo.Server.Data;
-using ReadVideo.Server.Services;
-using ReadVideo.Server.Services.AIAssistants;
 using ReadVideo.Server.Services.BotStateManagement;
-using ReadVideo.Server.Services.EmailSending;
-using ReadVideo.Server.Services.Embeddings;
-using ReadVideo.Server.Services.Embeddings.Storage;
 using ReadVideo.Server.Utils;
 using System.Diagnostics;
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
-using IEmailSender = ReadVideo.Server.Services.EmailSending.IEmailSender;
 
 namespace ReadVideo.Server.Controllers
 {
@@ -26,7 +12,6 @@ namespace ReadVideo.Server.Controllers
     {
         private readonly DITypeFactoryBase<string, BotStateManager> _botStateManagerFactory;
         
-
         public MediatorController(
             DITypeFactoryBase<string, BotStateManager> botStateManagerFactory)
         {
@@ -44,12 +29,24 @@ namespace ReadVideo.Server.Controllers
         [HttpPost("Datacol")]
         public async Task<IActionResult> Datacol([FromBody] ClientMessage clientMessage)
         {
-            return await JivoMediator(clientMessage,  "datacol");
-        }
+            string serviceKey = "";
+            if(clientMessage.Sender.Url.ToLower().Contains("zZzPoH2Dbm")||
+                clientMessage.Sender.Url.ToLower().Contains("web-data-extractor.net"))
+            {
+                serviceKey = "datacol";
+            }
+            else if (clientMessage.Sender.Url.ToLower().Contains("startspeaking.space"))
+            {
+                serviceKey = "startspeaking";
+            }
+            if (String.IsNullOrEmpty(serviceKey))
+            {
+                throw new Exception("Empty service key");
+            }
+            return await JivoMediator(clientMessage, serviceKey);
+        }      
 
-      
-
-        public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string token)
+        public async Task<IActionResult> JivoMediator(ClientMessage clientMessage, string serviceKey)
         {
            
             string log = $"Call JivoMediator Url = {clientMessage.Sender.Url}, SiteId = {clientMessage.SiteId}, ChatId = {clientMessage.ChatId},ClientId = {clientMessage.ClientId}, ButtonId = {clientMessage.Message.ButtonId},Message = {clientMessage.Message.Text}";
@@ -58,30 +55,23 @@ namespace ReadVideo.Server.Controllers
 
             
             // Immediately return OK result
-            Task.Run(() => ProcessMessageInBackground(clientMessage, token));
+            Task.Run(() => ProcessMessageInBackground(clientMessage, serviceKey));
 
             return Ok();
         }
 
-
-        private async Task ProcessMessageInBackground(ClientMessage clientMessage, string token)
+        private async Task ProcessMessageInBackground(ClientMessage clientMessage, string serviceKey)
         {
             try
-            {
-                
+            {                
                 ClientToBotMessage clientToBotMessage = new ClientToBotMessage(clientMessage.Message.Text, clientMessage.Message.ButtonId,token, clientMessage.ClientId, clientMessage.ChatId);
 
-                BotStateManager botStateManager = _botStateManagerFactory.GetOrCreate(token);
+                BotStateManager botStateManager = _botStateManagerFactory.GetOrCreate(serviceKey);
                 
                 await botStateManager.FindAppropriateAndExecute(clientToBotMessage);
 
-             
-
-
-                //_chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, clientToBotMessage);
                 Debug.WriteLine("Processed in BG");
                 Console.WriteLine("Processed in BG");
-                // Log success or perform any follow-up actions
             }
             catch (Exception ex)
             {

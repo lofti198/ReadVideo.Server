@@ -11,7 +11,7 @@ namespace ReadVideo.Server.Services
             string retVal = token switch
             {
                 "datacol" => "DC",
-                "startspeaking" => "START_SPEAK",
+                "startspeaking" => "START_SPEAKING",
                 _ => "NO"  // Default case
             };
             return retVal;
