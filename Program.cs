@@ -54,8 +54,9 @@ namespace ReadVideo.Server
                     serviceProvider,
                     (sp, key) => {
                         string settingKey = sp.GetRequiredService<TokenToServiceKeyConverter>().Convert(key);
+                        
                         string jsonSettings = Environment.GetEnvironmentVariable($"{settingKey}_SMTP_SETTING");
-
+                        Console.WriteLine($"key {key} , email sender setting key {settingKey} and jsonsettings {jsonSettings}");
                         if (!string.IsNullOrEmpty(jsonSettings))
                         {
                             // Deserialize the JSON string to an SmtpSettings object
