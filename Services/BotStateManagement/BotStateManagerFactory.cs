@@ -37,24 +37,108 @@ namespace ReadVideo.Server.Services.BotStateManagement
             switch (key)
             {
                 case "datacol":
-                    stateCollection.AddState(new BotState(
-                        async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == 1
-                        ,
-                        async (clientToBotMessage, chatHistory) => {
-                            
-                            var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(key);
+                    stateCollection.AddState(
+                        // Forwarding question to the support
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == 1
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                var lastTextMessage = chatHistory.GetLastMessage(false)?.Text ?? "NO LAST MESSAGE";
+                                var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(key);
+                                await _emailSenderServiceFactory.GetOrCreate(key).SendEmailAsync("isolar2005@gmail.com",
+                                    $"{key} chat question forwarded", lastTextMessage);
 
-                            await jivoSiteService.InviteAgentAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId);
-                        }
-                    ));
+                            }
+                        ));
                    
-                    stateCollection.AddState(new BotState(
+                    stateCollection.AddState(
+                        // Button "Describe parsing task" handler
+                        new BotState(
                             async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == 10
                             ,
                             async (clientToBotMessage, chatHistory) => {
-
                                 await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, "Какой сайт вы хотите парсить?");
                                
+                            }
+                        ));
+                    stateCollection.AddState(
+                        // Scenario "Describing parsing task" 1st step (Site)
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) =>
+                            {
+                                var lastMessage = chatHistory.GetLastMessage();
+                                if (lastMessage == null) return false;
+                                return lastMessage.ButtonId == 10;
+                            }
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                clientToBotMessage.SpecialId = "10.1:site_input";
+                                await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                "Прекрасно, скажите, какие данные нужно собрать?");                            
+                            }
+                        ));
+                    stateCollection.AddState(
+                        // Scenario "Describing parsing task" 2nd step (data)
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) =>
+                            {
+                                var lastMessage = chatHistory.GetLastMessage();
+                                if (lastMessage == null) return false;
+                                return lastMessage.SpecialId == "10.1:site_input";
+                            }
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                await _emailSenderServiceFactory.GetOrCreate(key).SendEmailAsync("isolar2005@gmail.com",
+                                    $"{key} chat task for parsing sent (just last step for now)", clientToBotMessage.Text);
+                                await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                 "Отлично! Отправили вашу задачу нашим разработчикам. В течение суток вы получите оценку стоимости. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
+                                 new List<Button>() {
+                                        new Button() { Text = "Описать еще одну задачу по парсингу", Id = 10 },
+                                        new Button() { Text = "Купить программу", Id = 50 }
+                                 });
+                            }
+                        ));
+                    stateCollection.AddState(
+                        // Show similar knowledgebase links
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == 20
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(key);
+                                await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, "Пару секунд, AI готовит ответ...");
+                                var lastMessage = chatHistory.GetLastMessage(true);
+                                if(lastMessage == null)
+                                {
+                                    await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                        "Ошибка: нет данных о прошлом сообщении");
+                                }
+                                else if (lastMessage.FaqItems == null)
+                                {
+                                    await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                        "Ошибка: нет данных о ссылка для прошлого вопроса");
+                                }
+                                else 
+                                {
+                                    await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, lastMessage.FaqItems.BuildFAQReference());
+                                }
+
+                                await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                 "Есть ли у вас еще вопросы? Также, возможно, вы хотите: ", "text",
+                                    new List<Button>() {
+                                    new Button() { Text = "Описать задачу по парсингу", Id = 10 },
+                                     // new Button() { Text = "Купить программу", Id = 50 }
+                                 });
+                            }
+                        ));
+                    stateCollection.AddState(
+                        // Button "Buy" handler
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == 50
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                // await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, "Какой сайт вы хотите парсить?");
+                                await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                    "Перейдите, пожалуйста [по ссылке](https://web-data-extractor.net/buy/). Есть ли у вас еще вопросы?");
                             }
                         ));
                     stateCollection.AddState(new BotState(

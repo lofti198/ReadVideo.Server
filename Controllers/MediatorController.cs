@@ -78,7 +78,7 @@ namespace ReadVideo.Server.Controllers
                 ///////////////////////////
                 /////////
                 /////////////////////////
-                //// ClientToBotMessage prevQuestion = chatData.GetLastMessage();
+                // ClientToBotMessage prevQuestion = chatData.GetLastMessage();
                 //ClientToBotMessage LastMessage = chatHistory.GetLastMessage();
                 //if (LastMessage != null)
                 //{
@@ -89,73 +89,7 @@ namespace ReadVideo.Server.Controllers
                 //{
                 //    Console.WriteLine(JsonConvert.SerializeObject(LastTextMessage));
                 //}
-                //// _chatDataStorage
-                //// User choose to invite operator
-                ////if (clientMessage.Message.ButtonId == 1)
-                ////{
-                ////    Console.WriteLine($"Invite agent");
-                ////    await jivoSiteService.InviteAgentAsync(clientMessage.ClientId, clientMessage.ChatId);
-                ////}
-                ////else if (clientMessage.Message.ButtonId == 10)
-                ////{
-                ////    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Какой сайт вы хотите парсить?");
-                ////}
-                //else if (clientMessage.Message.ButtonId == 50)
-                //{
-                //    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                //        "Перейдите, пожалуйста [по ссылке](https://web-data-extractor.net/buy/). Есть ли у вас еще вопросы?");
-
-                //}
-                //else if (LastTextMessage != null && clientMessage.Message.ButtonId == 20)
-                //{
-                //    await Task.Delay(1000);
-                //    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Пару секунд, AI готовит ответ...");
-
-                //    Console.WriteLine($"Ask assistant to extract answer");
-
-                //    //string assistantResponse = await _assistant.GetResponseAsync(LastTextMessage.Text,
-                //    //    LastTextMessage.FaqItems.BuildAssistantInstruction(),
-                //    //    Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
-
-                //    await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, LastTextMessage.FaqItems.BuildFAQReference());
-
-                //    await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                //     "Есть ли у вас еще вопросы? Также, возможно, вы хотите: ", "text",
-                //     new List<Button>() {
-                //            new Button() { Text = "Описать задачу по парсингу", Id = 10 },
-                //            // new Button() { Text = "Купить программу", Id = 50 }
-                //     });
-
-                //    // await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId, "Есть ли у вас еще вопросы?");
-
-                //    // Call assistant here, passing last RAG
-                //    //await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                //    //    "Invite Assistant", "text",
-                //    //    new List<Button>() {
-                //    //        new Button() { Text = "yes", Id = 1 },
-                //    //    });
-
-                //}
-                //else
-                //{
-                //    // choose site
-                //    if(LastMessage !=null && LastMessage.ButtonId==10)
-                //    {
-                //        clientToBotMessage.SpecialId = "10.1:site_input";
-                //        await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                //                "Прекрасно, скажите, какие данные нужно собрать?");
-                //    }
-                //    else if(LastMessage != null && LastMessage.SpecialId == "10.1:site_input")
-                //    {
-                //        //await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
-                //        //        "Отлично! Записали вашу задачу. Есть ли у вас еще вопросы?");
-                //        await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                //     "Отлично! Отправили вашу задачу нашим разработчикам. В течение суток вы получите оценку стоимости. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
-                //     new List<Button>() {
-                //            new Button() { Text = "Описать еще одну задачу по парсингу", Id = 10 },
-                //            new Button() { Text = "Купить программу", Id = 50 }
-                //     });
-                //    }
+              
                 //    else
                 //    {
                 //        // Check if just hello
@@ -165,13 +99,13 @@ namespace ReadVideo.Server.Controllers
                 //        {
                 //            await jivoSiteService.SendMessageAsync(clientMessage.ClientId, clientMessage.ChatId,
                 //                "Данный вопрос относится к срочным, поэтому передаю его сразу в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы?");
-                //            await emailSender.SendEmailAsync(Consts.MyTestEmail,"Sensitive from client", clientMessage.Message.Text);
-                //     //       await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
-                //     //"Данный вопрос относится к критичным, поэтому передаю его сразу в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
-                //     //new List<Button>() {
-                //     //       new Button() { Text = "Описать задачу по парсингу", Id = 10 },
-                //     //       new Button() { Text = "Купить программу", Id = 50 }
-                //     //       // TODO
+                //            await emailSender.SendEmailAsync(Consts.MyTestEmail, "Sensitive from client", clientMessage.Message.Text);
+                //            //       await jivoSiteService.SendMessageWithButtonsAsync(clientMessage.ClientId, clientMessage.ChatId,
+                //            //"Данный вопрос относится к критичным, поэтому передаю его сразу в поддержку! Наша команда свяжется с вами в течение 24 часов. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
+                //            //new List<Button>() {
+                //            //       new Button() { Text = "Описать задачу по парсингу", Id = 10 },
+                //            //       new Button() { Text = "Купить программу", Id = 50 }
+                //            //       // TODO
                 //        }
                 //        else if (!messageFeatures.Complex)
                 //        {
@@ -221,14 +155,14 @@ namespace ReadVideo.Server.Controllers
                 //            new Button() { Text = "Описать задачу по парсингу", Id = 10 }
                 //                    });
                 //            }
-                            
+
                 //        }
 
                 //    }
 
                 //}
 
-               
+
                 //_chatDataStorage.SaveData(clientMessage.ClientId, clientMessage.ChatId, clientToBotMessage);
                 Debug.WriteLine("Processed in BG");
                 Console.WriteLine("Processed in BG");
