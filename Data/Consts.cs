@@ -10,5 +10,9 @@
 
         public static string OpenAIApiKey = "GPT_API_KEY";
         public static string SingleStoreConnectionStr = "SINGLE_STORE_CONNECTION_STR";
+        public static string DC_Setup_Key = "DC";
+        public static string StartSpeaking_Setup_Key = "START_SPEAK";
+
+        public static string MyTestEmail { get; internal set; } = "isolar2005@gmail.com";
     }
 }

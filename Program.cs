@@ -1,16 +1,21 @@
 using HigLabo.OpenAI;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using ReadVideo.Server.Data;
 using ReadVideo.Server.Middleware;
 using ReadVideo.Server.Models;
 using ReadVideo.Server.Services;
 using ReadVideo.Server.Services.AIAssistants;
+using ReadVideo.Server.Services.BotStateManagement;
+using ReadVideo.Server.Services.EmailSending;
 using ReadVideo.Server.Services.Embeddings;
 using ReadVideo.Server.Services.Embeddings.Generation;
 using ReadVideo.Server.Services.Embeddings.Storage;
 using ReadVideo.Server.Utils;
 using ReadVideo.Services.YoutubeManagement;
+using IEmailSender = ReadVideo.Server.Services.EmailSending.IEmailSender;
 
 namespace ReadVideo.Server
 {
@@ -26,12 +31,47 @@ namespace ReadVideo.Server
             builder.Services.AddTransient<IYoutubeSubtitleService, YoutubeSubtitleService>();
             builder.Services.AddHttpClient();
 
+            builder.Services.AddSingleton<TokenToServiceKeyConverter>();
+
             // Register the generic factory for ISomeClass with the specific factory method
             builder.Services.AddSingleton<DITypeFactoryBase<string, IJivoSiteService>>(
                 serviceProvider => new DITypeFactoryBase<string, IJivoSiteService>(
                     serviceProvider,
                     (sp, key) => new JivoSiteService(sp.GetRequiredService<IHttpClientFactory>(), key)
-                )); 
+                ));
+
+            builder.Services.AddSingleton<IChatDataStorageService, ChatDataStorageService>();
+            builder.Services.AddSingleton <BotStateManagerFactory>();
+            builder.Services.AddSingleton<DITypeFactoryBase<string, BotStateManager>>(
+                serviceProvider => new DITypeFactoryBase<string, BotStateManager>(
+                    serviceProvider,
+                    (sp, key) => sp.GetRequiredService<BotStateManagerFactory>().Create(key)
+                ));
+            
+
+            builder.Services.AddSingleton<DITypeFactoryBase<string, IEmailSender>>(
+                serviceProvider => new DITypeFactoryBase<string, IEmailSender>(
+                    serviceProvider,
+                    (sp, key) => {
+                        string jsonSettings = Environment.GetEnvironmentVariable($"{key}_SMTP_SETTING");
+
+                        if (!string.IsNullOrEmpty(jsonSettings))
+                        {
+                            // Deserialize the JSON string to an SmtpSettings object
+                            SmtpSettings smtpSettings = JsonConvert.DeserializeObject<SmtpSettings>(jsonSettings);
+
+                            // Use smtpSettings as needed
+                            Console.WriteLine($"Host: {smtpSettings.Host}");
+                            return new EmailSender(smtpSettings);
+                        }
+                        else
+                        {
+                            Console.WriteLine("SMTP settings are not set in the environment variables.");
+                            return null;
+                        }
+                      
+                    }
+                ));
             // builder.Services.AddScoped<IJivoSiteService, JivoSiteService>();
 
             builder.Services.AddCors(options =>
@@ -50,7 +90,6 @@ namespace ReadVideo.Server
                 return new OpenAIClient(Environment.GetEnvironmentVariable(Consts.OpenAIApiKey));
             });
             builder.Services.AddSingleton<IMessageEvaluator, MessageEvaluator>();
-            builder.Services.AddSingleton<IChatDataStorageService, ChatDataStorageService>();
 
             builder.Services.AddSingleton<IEmbeddingStorageService, SingleStoreService>(serviceProvider =>
             {

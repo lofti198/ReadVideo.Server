@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace ReadVideo.Server.Data
 {
-    public class ChatData
+    public class ChatHistory
     {
         public List<ClientToBotMessage> Messages { get; set; } = new List<ClientToBotMessage>();
         // public string PrevUserRequest { get; set; }
@@ -11,12 +11,12 @@ namespace ReadVideo.Server.Data
         // public int LastButtonId { get;set; }
         public void AddMessage(ClientToBotMessage message)=>Messages.Add(message);
 
-        public ChatData(ClientToBotMessage message)
+        public ChatHistory(ClientToBotMessage message)
         {
             AddMessage(message);
         }
 
-        public ChatData()
+        public ChatHistory()
         {
             
         }
@@ -43,17 +43,24 @@ namespace ReadVideo.Server.Data
 
     public class ClientToBotMessage
     {
+        public string BotKey { get; set; }
         public string SpecialId { get; set; } = "";  
         public string Text { get; set; }
 
         //TODO: arch - move
         public List<FAQItem> FaqItems { get; set; } = null;
-        public int ButtonId { get; set; } = 0;
+        public int ButtonId { get; set; }
 
-        public ClientToBotMessage(string text, int buttonId)
+        public string ClientId { get; set; }
+
+        public string ChatId { get; set; }
+        public ClientToBotMessage(string text, int buttonId, string botKey, string clientId, string chatId)
         {
             Text = text;
             ButtonId = buttonId;
+            BotKey = botKey;
+            ClientId = clientId;
+            ChatId = chatId;
         }
     }
 
