@@ -38,6 +38,70 @@ namespace ReadVideo.Server.Services.BotStateManagement
             {
                 case "startspeaking":
                     stateCollection.AddState(
+                        // Button "Fill applicatoin" handler
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == 10
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync
+                                    (clientToBotMessage.ClientId, clientToBotMessage.ChatId, 
+                                    "How old are you? What is your profession?");
+
+                            }
+                        ));
+                    stateCollection.AddState(
+                        // Scenario "Describing parsing task" 1st step
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) =>
+                            {
+                                var lastMessage = chatHistory.GetLastMessage();
+                                if (lastMessage == null) return false;
+                                return lastMessage.ButtonId == 10;
+                            }
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                clientToBotMessage.SpecialId = "10.1";
+                                await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                "Great! What is your English level?");
+                            }
+                        ));
+                    stateCollection.AddState(
+                        // Scenario "Describing parsing task" 2nd step
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) =>
+                            {
+                                var lastMessage = chatHistory.GetLastMessage();
+                                if (lastMessage == null) return false;
+                                return lastMessage.SpecialId == "10.1";
+                            }
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                clientToBotMessage.SpecialId = "10.2";
+                                await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                "Finally, what is your goal learning English");
+                            }
+                        ));
+
+                    stateCollection.AddState(
+                        // Scenario "Describing parsing task" 2nd step (data)
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) =>
+                            {
+                                var lastMessage = chatHistory.GetLastMessage();
+                                if (lastMessage == null) return false;
+                                return lastMessage.SpecialId == "10.2";
+                            }
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                await _emailSenderServiceFactory.GetOrCreate(key).SendEmailAsync("isolar2005@gmail.com",
+                                    $"{key} chat application for StartSpeaking sent (just last step for now)", clientToBotMessage.Text);
+                                await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                 "Great! Thank you for your time. Sasha will get back to you in 24 hours. If you have any more questions, feel free to ask!");
+                                 
+                            }
+                        ));
+                    stateCollection.AddState(
+                        
                         // Other messages
                         new BotState(
                             async (clientToBotMessage, chatHistory) => true
@@ -56,25 +120,26 @@ namespace ReadVideo.Server.Services.BotStateManagement
                                     await Task.Delay(1000);
 
                                     // в базе знаний нет
-                                    if (assistantResponse.ToLower().Contains("в базе знаний нет"))
+                                    if (assistantResponse.ToLower().Contains("t know the answer"))
                                     {
                                         await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
-                                            "Могу переслать вопрос на email поддержки. Также, вы можете сформулировать вопрос по-другому.", "text",
+                                            "Sorry, I don't know the answer. I can forward it right now to Sasha and he will reply you in 24 hours. You can also fill my standard application form or just ask another question.", "text",
                                             new List<Button>() {
-                                                new Button() { Text = "Переслать поддержке", Id = 1 },
+                                                new Button() { Text = "Send question to Sasha", Id = 1 },
+                                                new Button() { Text = "Fill application form", Id = 10 },
                                             });
                                     }
                                     else
                                     {
 
-                                        await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
-                                            "Удалось ли найти ответ? Если нет, то могу переслать вопрос на email поддержки или показать похожие статьи из базы знаний. Также, вы можете сформулировать вопрос по-другому либо сразу описать свою задачу по парсингу.", "text",
-                                            new List<Button>() {
-                                                new Button() { Text = "Переслать поддержке", Id = 1 },
-                                                new Button() { Text = "Заполнить заявку", Id = 10 }
-                                            });
-                                    }
+                                    await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                        "Is this the asnwer  you were searching for? If not - I can forward it right now to Sasha and he will reply you in 24 hours. You can also fill my standard application form or just ask another question.", "text",
+                                        new List<Button>() {
+                                                new Button() { Text = "Send question to Sasha", Id = 1 },
+                                                new Button() { Text = "Fill application form", Id = 10 },
+                                        });
                                 }
+                            }
                         ));
                     break;
                 case "datacol":
