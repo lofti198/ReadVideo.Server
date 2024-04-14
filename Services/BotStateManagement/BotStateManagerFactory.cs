@@ -36,8 +36,48 @@ namespace ReadVideo.Server.Services.BotStateManagement
 
             switch (key)
             {
-                case "datacol":
                 case "startspeaking":
+                    stateCollection.AddState(
+                        // Other messages
+                        new BotState(
+                            async (clientToBotMessage, chatHistory) => true
+                            ,
+                            async (clientToBotMessage, chatHistory) => {
+                                var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(key);
+                               
+                                    await Task.Delay(1000);
+                                    await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, "Пару секунд, AI готовит ответ...");
+
+                                    string assistantResponse = await _assistant.GetResponseAsync(clientToBotMessage.Text,
+                                        "",
+                                        Consts.OpenAIAssistantID_DC, clientToBotMessage.ChatId);
+
+                                    await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, assistantResponse);
+                                    await Task.Delay(1000);
+
+                                    // в базе знаний нет
+                                    if (assistantResponse.ToLower().Contains("в базе знаний нет"))
+                                    {
+                                        await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                            "Могу переслать вопрос на email поддержки. Также, вы можете сформулировать вопрос по-другому.", "text",
+                                            new List<Button>() {
+                                                new Button() { Text = "Переслать поддержке", Id = 1 },
+                                            });
+                                    }
+                                    else
+                                    {
+
+                                        await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                            "Удалось ли найти ответ? Если нет, то могу переслать вопрос на email поддержки или показать похожие статьи из базы знаний. Также, вы можете сформулировать вопрос по-другому либо сразу описать свою задачу по парсингу.", "text",
+                                            new List<Button>() {
+                                                new Button() { Text = "Переслать поддержке", Id = 1 },
+                                                new Button() { Text = "Заполнить заявку", Id = 10 }
+                                            });
+                                    }
+                                }
+                        ));
+                    break;
+                case "datacol":
                     stateCollection.AddState(
                         // Forwarding question to the support
                         new BotState(
