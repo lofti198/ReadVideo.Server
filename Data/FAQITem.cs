@@ -38,7 +38,21 @@ namespace ReadVideo.Server.Data
             // If no message meets the criteria, return null or handle accordingly
             return null;
         }
-       
+        public ClientToBotMessage GetMessageWithSpecialId(string specialId)
+        {
+            // Iterate through the Messages list in reverse
+            for (int i = Messages.Count - 1; i >= 0; i--)
+            {
+                if (Messages[i].SpecialId == specialId)
+                {
+                    // If ButtonId is 0, return this message as it's considered a question
+                    return Messages[i];
+                }
+            }
+
+            // If no message meets the criteria, return null or handle accordingly
+            return null;
+        }
     }
 
     public class ClientToBotMessage
