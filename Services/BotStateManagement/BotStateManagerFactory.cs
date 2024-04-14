@@ -37,6 +37,7 @@ namespace ReadVideo.Server.Services.BotStateManagement
             switch (key)
             {
                 case "datacol":
+                case "startspeaking":
                     stateCollection.AddState(
                         // Forwarding question to the support
                         new BotState(
