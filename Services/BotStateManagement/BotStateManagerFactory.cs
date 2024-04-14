@@ -50,7 +50,7 @@ namespace ReadVideo.Server.Services.BotStateManagement
 
                                     string assistantResponse = await _assistant.GetResponseAsync(clientToBotMessage.Text,
                                         "",
-                                        Consts.OpenAIAssistantID_DC, clientToBotMessage.ChatId);
+                                        Consts.OpenAIAssistantID_StartSpeaking, clientToBotMessage.ChatId);
 
                                     await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, assistantResponse);
                                     await Task.Delay(1000);
