@@ -37,7 +37,7 @@ namespace ReadVideo.Server
             builder.Services.AddSingleton<DITypeFactoryBase<string, IJivoSiteService>>(
                 serviceProvider => new DITypeFactoryBase<string, IJivoSiteService>(
                     serviceProvider,
-                    (sp, key) => new JivoSiteService(sp.GetRequiredService<IHttpClientFactory>(), key)
+                    (sp, key) => new JivoSiteService(sp.GetRequiredService<IHttpClientFactory>(), "datacol")//key)
                 ));
 
             builder.Services.AddSingleton<IChatDataStorageService, ChatDataStorageService>();
