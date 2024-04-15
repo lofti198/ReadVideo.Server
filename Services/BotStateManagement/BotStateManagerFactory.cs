@@ -14,19 +14,19 @@ namespace ReadVideo.Server.Services.BotStateManagement
         private readonly IAssistant _assistant; // Service to interact with OpenAI API
         private readonly IEmbeddingManager _embeddingManager;
         private readonly IMessageEvaluator _messageEvaluator;
-        private readonly TokenToServiceKeyConverter _tokenToServiceKeyConverter;
+        // private readonly TokenToServiceKeyConverter _tokenToServiceKeyConverter;
         private readonly IChatDataStorageService _chatDataStorageService;
 
         public BotStateManagerFactory(DITypeFactoryBase<string, IJivoSiteService> jivoSiteServiceFactory,
             DITypeFactoryBase<string, IEmailSender> emailSenderServiceFactory, IAssistant assistant,
-            IEmbeddingManager embeddingManager, IMessageEvaluator messageEvaluator, TokenToServiceKeyConverter tokenToServiceKeyConverter, IChatDataStorageService chatDataStorageService)
+            IEmbeddingManager embeddingManager, IMessageEvaluator messageEvaluator, IChatDataStorageService chatDataStorageService)
         {
             _jivoSiteServiceFactory = jivoSiteServiceFactory;
             _emailSenderServiceFactory = emailSenderServiceFactory;
             _assistant = assistant;
             _embeddingManager = embeddingManager;
             _messageEvaluator = messageEvaluator;
-            _tokenToServiceKeyConverter = tokenToServiceKeyConverter;
+            // _tokenToServiceKeyConverter = tokenToServiceKeyConverter;
             _chatDataStorageService = chatDataStorageService;
         }
 
@@ -52,9 +52,9 @@ namespace ReadVideo.Server.Services.BotStateManagement
                     stateCollection.AddState(
                         // Scenario "Describing parsing task" 1st step
                         new BotState(
-                            async (clientToBotMessage, chatHistory) =>
+                            async (clientToBotMessage, chatData) =>
                             {
-                                var lastMessage = chatHistory.GetLastMessage();
+                                var lastMessage = chatData.GetLastMessage();
                                 if (lastMessage == null) return false;
                                 return lastMessage.ButtonId == 10;
                             }
@@ -85,16 +85,16 @@ namespace ReadVideo.Server.Services.BotStateManagement
                     stateCollection.AddState(
                         // Scenario "Describing parsing task" 2nd step (data)
                         new BotState(
-                            async (clientToBotMessage, chatHistory) =>
+                            async (clientToBotMessage, chatData) =>
                             {
-                                var lastMessage = chatHistory.GetLastMessage();
+                                var lastMessage = chatData.GetLastMessage();
                                 if (lastMessage == null) return false;
                                 return lastMessage.SpecialId == "10.2";
                             }
                             ,
-                            async (clientToBotMessage, chatHistory) => {
+                            async (clientToBotMessage, chatData) => {
                                 // gather complete the request data!!!
-                                var copmleteRequestData = Utils.ParticularBotUtils.StartSpeakingBotUtils.GetCopmleteRequestData(clientToBotMessage, chatHistory);
+                                var copmleteRequestData = Utils.ParticularBotUtils.StartSpeakingBotUtils.GetCopmleteRequestData(clientToBotMessage, chatData);
                                 await _emailSenderServiceFactory.GetOrCreate(key).SendEmailAsync("isolar2005@gmail.com",
                                     $"{key} chat application for StartSpeaking sent (just last step for now)", copmleteRequestData);
                                 await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
@@ -216,12 +216,12 @@ namespace ReadVideo.Server.Services.BotStateManagement
                     stateCollection.AddState(
                         // BUtton "Show similar knowledgebase links" handler
                         new BotState(
-                            async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == 20
+                            async (clientToBotMessage, chatData) => clientToBotMessage.ButtonId == 20
                             ,
-                            async (clientToBotMessage, chatHistory) => {
+                            async (clientToBotMessage, chatData) => {
                                 var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(key);
                                 await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, "Пару секунд, AI готовит ответ...");
-                                var lastMessage = chatHistory.GetLastMessage(true);
+                                var lastMessage = chatData.GetLastMessage(true);
                                 if(lastMessage == null)
                                 {
                                     await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,

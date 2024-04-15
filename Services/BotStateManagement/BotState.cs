@@ -5,10 +5,10 @@ namespace ReadVideo.Server.Services.BotStateManagement
 {
     public class BotState
     {
-        public Func<ClientToBotMessage, ChatHistory, Task<bool>> IsApplicable;
+        public Func<ClientToBotMessage, ChatData, Task<bool>> IsApplicable;
 
-        public Func<ClientToBotMessage, ChatHistory,Task> Operation;
-        public BotState(Func<ClientToBotMessage, ChatHistory, Task<bool>> isApplicable, Func<ClientToBotMessage, ChatHistory, Task> operation)
+        public Func<ClientToBotMessage, ChatData, Task> Operation;
+        public BotState(Func<ClientToBotMessage, ChatData, Task<bool>> isApplicable, Func<ClientToBotMessage, ChatData, Task> operation)
         {
             IsApplicable = isApplicable;
             Operation = operation;

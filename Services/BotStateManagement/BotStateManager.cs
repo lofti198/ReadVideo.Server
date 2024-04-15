@@ -15,14 +15,14 @@ namespace ReadVideo.Server.Services.BotStateManagement
 
         public async Task FindAppropriateAndExecute(ClientToBotMessage clientToBotMessage)
         {
-            ChatHistory chatHistory = _chatDataStorage.GetChatData(clientToBotMessage.ClientId, clientToBotMessage.ChatId);
+            ChatData chatData = _chatDataStorage.GetChatData(clientToBotMessage.ClientId, clientToBotMessage.ChatId);
 
             foreach (BotState state in _stateCollection)
             {
-                if(await state.IsApplicable(clientToBotMessage, chatHistory))
+                if(await state.IsApplicable(clientToBotMessage, chatData))
                 {
-                    await state.Operation(clientToBotMessage, chatHistory);
-                    chatHistory.AddMessage(clientToBotMessage);
+                    await state.Operation(clientToBotMessage, chatData);
+                    chatData.AddMessage(clientToBotMessage);
                     return;
                 }
             }
