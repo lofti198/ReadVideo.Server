@@ -68,13 +68,15 @@ namespace ReadVideo.Server.Data
         public string ClientId { get; set; }
 
         public string ChatId { get; set; }
-        public ClientToBotMessage(string text, int buttonId, string botKey, string clientId, string chatId)
+        public string ClientName { get; set; }
+        public ClientToBotMessage(string text, int buttonId, string botKey, string clientId, string chatId, string clientName)
         {
             Text = text;
             ButtonId = buttonId;
             BotKey = botKey;
             ClientId = clientId;
             ChatId = chatId;
+            ClientName = clientName;
         }
     }
 

@@ -94,7 +94,7 @@ namespace ReadVideo.Server.Services.BotStateManagement
                             ,
                             async (clientToBotMessage, chatHistory) => {
                                 // gather complete the request data!!!
-                                var copmleteRequestData = Utils.ParticularBotUtils.StartSpeakingBotUtils.GetCopmleteRequestData(clientToBotMessage.Text, chatHistory);
+                                var copmleteRequestData = Utils.ParticularBotUtils.StartSpeakingBotUtils.GetCopmleteRequestData(clientToBotMessage, chatHistory);
                                 await _emailSenderServiceFactory.GetOrCreate(key).SendEmailAsync("isolar2005@gmail.com",
                                     $"{key} chat application for StartSpeaking sent (just last step for now)", copmleteRequestData);
                                 await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,

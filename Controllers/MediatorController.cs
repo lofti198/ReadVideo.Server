@@ -64,7 +64,8 @@ namespace ReadVideo.Server.Controllers
         {
             try
             {                
-                ClientToBotMessage clientToBotMessage = new ClientToBotMessage(clientMessage.Message.Text, clientMessage.Message.ButtonId, serviceKey, clientMessage.ClientId, clientMessage.ChatId);
+                ClientToBotMessage clientToBotMessage = new ClientToBotMessage(clientMessage.Message.Text, clientMessage.Message.ButtonId, serviceKey, clientMessage.ClientId, clientMessage.ChatId,
+                    clientMessage.Sender.Name);
 
                 BotStateManager botStateManager = _botStateManagerFactory.GetOrCreate(serviceKey);
                 
