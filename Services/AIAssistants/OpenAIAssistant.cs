@@ -42,7 +42,7 @@ namespace ReadVideo.Server.Services.AIAssistants
                 Thread_Id = internalThreadId,
                 Stream = true,
                 Temperature = 0,
-             
+                Model = "gpt-4-turbo",
                 Additional_Instructions = additionaInstruction,
             };
             StringBuilder openAIResponseText = new StringBuilder();
