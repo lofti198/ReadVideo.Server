@@ -111,26 +111,33 @@ namespace ReadVideo.Server.Services.BotStateManagement
                             async (clientToBotMessage, chatHistory) => {
                                 var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(key);
                                
-                                    await Task.Delay(1000);
+                                    await Task.Delay(500);
                                     await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, "Пару секунд, AI готовит ответ...");
 
                                     string assistantResponse = await _assistant.GetResponseAsync(clientToBotMessage.Text,
                                         "",
                                         Consts.OpenAIAssistantID_StartSpeaking, clientToBotMessage.ChatId);
 
-                                    await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, assistantResponse);
-                                    await Task.Delay(1000);
-
-                                    // в базе знаний нет
-                                    if (assistantResponse.ToLower().Contains("t know the answer"))
-                                    {
-                                        await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
-                                            "Извиняюсь, но я не знаю ответа на этот вопрос. Я могу прямо сейчас переслать его Саше и он ответит в течение 24часов.", "text",
-                                            new List<Button>() {
+                                
+                                await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                    assistantResponse,
+                                    assistantResponse,
+                                     new List<Button>() {
                                                 new Button() { Text = "Переслать вопрос Саше", Id = 1 },
                                                 new Button() { Text = "Заполнить заявку на обучение", Id = 10 },
                                             });
-                                    }
+                                   
+
+                                    // в базе знаний нет
+                                    //if (assistantResponse.ToLower().Contains("t know the answer"))
+                                    //{
+                                    //    await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                                    //        "Извиняюсь, но я не знаю ответа на этот вопрос. Я могу прямо сейчас переслать его Саше и он ответит в течение 24часов.", "text",
+                                    //        new List<Button>() {
+                                    //            new Button() { Text = "Переслать вопрос Саше", Id = 1 },
+                                    //            new Button() { Text = "Заполнить заявку на обучение", Id = 10 },
+                                    //        });
+                                    //}
                                     //else
                                     //{
 
