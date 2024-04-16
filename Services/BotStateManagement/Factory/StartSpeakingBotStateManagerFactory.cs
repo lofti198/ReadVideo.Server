@@ -9,6 +9,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
 {
     public class StartSpeakingBotStateManagerFactory : BotStateManagerFactoryBase
     {
+        const int _fillApplicationButtonId = 10;  
         public StartSpeakingBotStateManagerFactory(DITypeFactoryBase<string, IJivoSiteService> jivoSiteServiceFactory, DITypeFactoryBase<string, IEmailSender> emailSenderServiceFactory, IAssistant assistant, IEmbeddingManager embeddingManager, IMessageEvaluator messageEvaluator, IChatDataStorageService chatDataStorageService)
             : base("startspeaking", jivoSiteServiceFactory, emailSenderServiceFactory, assistant, embeddingManager, messageEvaluator, chatDataStorageService)
         {
@@ -22,9 +23,9 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
             stateCollection.AddState(
                 // Button "Fill applicatoin" handler
                 new BotState(
-                    async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == 10
+                    async (clientToBotMessage, chatData) => clientToBotMessage.ButtonId == _fillApplicationButtonId
                     ,
-                    async (clientToBotMessage, chatHistory) =>
+                    async (clientToBotMessage, chatHchatDataistory) =>
                     {
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync
                             (clientToBotMessage.ClientId, clientToBotMessage.ChatId,
@@ -39,12 +40,12 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     {
                         var lastMessage = chatData.GetLastMessage();
                         if (lastMessage == null) return false;
-                        return lastMessage.ButtonId == 10;
+                        return lastMessage.ButtonId == _fillApplicationButtonId;
                     }
                     ,
-                    async (clientToBotMessage, chatHistory) =>
+                    async (clientToBotMessage, chatData) =>
                     {
-                        clientToBotMessage.SpecialId = "10.1";
+                        clientToBotMessage.SpecialId = $"{_fillApplicationButtonId}.1";
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                         "Шаг 2/3: Отлично! Какой Ваш уровень английского?");
                     }
@@ -52,16 +53,16 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
             stateCollection.AddState(
                 // Scenario "Describing parsing task" 2nd step
                 new BotState(
-                    async (clientToBotMessage, chatHistory) =>
+                    async (clientToBotMessage, chatData) =>
                     {
-                        var lastMessage = chatHistory.GetLastMessage();
+                        var lastMessage = chatData.GetLastMessage();
                         if (lastMessage == null) return false;
-                        return lastMessage.SpecialId == "10.1";
+                        return lastMessage.SpecialId == $"{_fillApplicationButtonId}.1";
                     }
                     ,
                     async (clientToBotMessage, chatHistory) =>
                     {
-                        clientToBotMessage.SpecialId = "10.2";
+                        clientToBotMessage.SpecialId = $"{_fillApplicationButtonId}.2";
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                         "Шаг 3/3: Наконец - какая Ваша цель изучения English?");
                     }
@@ -74,7 +75,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     {
                         var lastMessage = chatData.GetLastMessage();
                         if (lastMessage == null) return false;
-                        return lastMessage.SpecialId == "10.2";
+                        return lastMessage.SpecialId == $"{_fillApplicationButtonId}.2";
                     }
                     ,
                     async (clientToBotMessage, chatData) =>
@@ -92,9 +93,9 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
 
                 // Other messages
                 new BotState(
-                    async (clientToBotMessage, chatHistory) => true
+                    async (clientToBotMessage, chatData) => true
                     ,
-                    async (clientToBotMessage, chatHistory) =>
+                    async (clientToBotMessage, chatData) =>
                     {
                         var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(key);
 
@@ -106,15 +107,21 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                             Consts.OpenAIAssistantID_StartSpeaking, clientToBotMessage.ChatId);
 
 
+                        var buttons = new List<Button>
+                        {
+                            new Button { Text = "Переслать вопрос Саше", Id = 1 }
+                        };
+
+                        if (!chatData.ButtonsClicked.Contains(_fillApplicationButtonId))
+                        {
+                            buttons.Add(new Button { Text = "Заполнить заявку на обучение", Id = _fillApplicationButtonId });
+                        }
+
+
                         await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                             assistantResponse,
                             assistantResponse,
-                             new List<Button>() {
-                                                new Button() { Text = "Переслать вопрос Саше", Id = 1 },
-                                                new Button() { Text = "Заполнить заявку на обучение", Id = 10 },
-                                    });
-
-
+                            buttons);
                     }
                 ));
 
