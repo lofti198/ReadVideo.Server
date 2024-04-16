@@ -9,6 +9,7 @@ using ReadVideo.Server.Models;
 using ReadVideo.Server.Services;
 using ReadVideo.Server.Services.AIAssistants;
 using ReadVideo.Server.Services.BotStateManagement;
+using ReadVideo.Server.Services.BotStateManagement.Factory;
 using ReadVideo.Server.Services.EmailSending;
 using ReadVideo.Server.Services.Embeddings;
 using ReadVideo.Server.Services.Embeddings.Generation;
@@ -41,12 +42,17 @@ namespace ReadVideo.Server
                 ));
 
             builder.Services.AddSingleton<IChatDataStorageService, ChatDataStorageService>();
-            builder.Services.AddSingleton <BotStateManagerFactory>();
+            builder.Services.AddKeyedSingleton<BotStateManagerFactoryBase, DatacolBotStateManagerFactory>("datacol");
+            builder.Services.AddKeyedSingleton<BotStateManagerFactoryBase, StartSpeakingBotStateManagerFactory>("startspeaking");
+
+            
+            // builder.Services.AddKeyedSingleton<BotStateManagerFactory, StartSpeakingBotStateManagerFactory>("startspeaking");
+            
             builder.Services.AddSingleton<DITypeFactoryBase<string, BotStateManager>>(
                 serviceProvider => new DITypeFactoryBase<string, BotStateManager>(
                     serviceProvider,
-                    (sp, key) => sp.GetRequiredService<BotStateManagerFactory>().Create(key)
-                ));
+                    (sp, key) => sp.GetKeyedService<BotStateManagerFactoryBase>(key).Create()//sp.GetRequiredService<BotStateManagerFactory>().Create(key)
+                )); 
             
 
             builder.Services.AddSingleton<DITypeFactoryBase<string, IEmailSender>>(
