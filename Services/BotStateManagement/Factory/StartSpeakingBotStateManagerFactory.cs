@@ -43,7 +43,8 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     {
                         var userLastQuestion = chatData.GetLastMessage(false).Text;
                         await _emailSenderServiceFactory.GetOrCreate(key).SendEmailAsync("isolar2005@gmail.com",
-                            $"{key} chat question for StartSpeaking sent", userLastQuestion);
+                            $"{key} chat question for StartSpeaking sent",
+                            $"Name: {clientToBotMessage.ClientName}{Environment.NewLine}" +userLastQuestion);
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                          "Спасибо! Саша ответит Вам в течение 24 часов. Если у Вас есть еще вопросы - пожалуйста, задайте их мне.");
 
