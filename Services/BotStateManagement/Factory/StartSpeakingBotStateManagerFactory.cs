@@ -9,7 +9,8 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
 {
     public class StartSpeakingBotStateManagerFactory : BotStateManagerFactoryBase
     {
-        const int _fillApplicationButtonId = 10;  
+        const int _fillApplicationButtonId = 10;
+        const int _forwardQuestionToHumanButtonId = 1;
         public StartSpeakingBotStateManagerFactory(DITypeFactoryBase<string, IJivoSiteService> jivoSiteServiceFactory, DITypeFactoryBase<string, IEmailSender> emailSenderServiceFactory, IAssistant assistant, IEmbeddingManager embeddingManager, IMessageEvaluator messageEvaluator, IChatDataStorageService chatDataStorageService)
             : base("startspeaking", jivoSiteServiceFactory, emailSenderServiceFactory, assistant, embeddingManager, messageEvaluator, chatDataStorageService)
         {
@@ -30,6 +31,22 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync
                             (clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                             $"Ooops) Ваше сообщение больше {Consts.ClientMessageSymbolsLimit} символов. Я такие еще обрабатывать не умею)"); 
+
+                    }
+                ));
+            stateCollection.AddState(
+                // Button "Fill application" handler
+                new BotState(
+                    async (clientToBotMessage, chatData) => clientToBotMessage.ButtonId == _forwardQuestionToHumanButtonId
+                    ,
+                    async (clientToBotMessage, chatData) =>
+                    {
+                        var userLastQuestion = chatData.GetLastMessage(false).Text;
+                        await _emailSenderServiceFactory.GetOrCreate(key).SendEmailAsync("isolar2005@gmail.com",
+                            $"{key} chat question for StartSpeaking sent", userLastQuestion);
+                        await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                         "Спасибо! Саша ответит Вам в течение 24 часов. Если у Вас есть еще вопросы - пожалуйста, задайте их мне.");
+
 
                     }
                 ));
@@ -96,7 +113,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                         // gather complete the request data!!!
                         var copmleteRequestData = Utils.ParticularBotUtils.StartSpeakingBotUtils.GetCopmleteRequestData(clientToBotMessage, chatData);
                         await _emailSenderServiceFactory.GetOrCreate(key).SendEmailAsync("isolar2005@gmail.com",
-                            $"{key} chat application for StartSpeaking sent (just last step for now)", copmleteRequestData);
+                            $"{key} chat application for StartSpeaking sent", copmleteRequestData);
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                          "Супер! Спасибо, за Ваше время. Саша ответит Вам в течение 24 часов. Если у Вас есть еще вопросы - пожалуйста, задайте их мне.");
 
@@ -122,7 +139,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
 
                         var buttons = new List<Button>
                         {
-                            new Button { Text = "Переслать вопрос Саше", Id = 1 }
+                            new Button { Text = "Переслать вопрос Саше", Id = _forwardQuestionToHumanButtonId }
                         };
 
                         if (!chatData.ButtonsClicked.Contains(_fillApplicationButtonId))
