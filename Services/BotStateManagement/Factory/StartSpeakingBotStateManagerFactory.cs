@@ -60,7 +60,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     {
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync
                             (clientToBotMessage.ClientId, clientToBotMessage.ChatId,
-                            "Шаг 1/3: Сколько Вам лет? Кто Вы по профессии?");
+                            "**Шаг 1/3:** Сколько Вам лет? Кто Вы по профессии?");
 
                     }
                 ));
@@ -78,7 +78,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     {
                         clientToBotMessage.SpecialId = $"{_fillApplicationButtonId}.1";
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
-                        "Шаг 2/3: Отлично! Какой Ваш уровень английского?");
+                        "**Шаг 2/3**: Отлично! Какой Ваш уровень английского?");
                     }
                 ));
             stateCollection.AddState(
@@ -95,7 +95,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     {
                         clientToBotMessage.SpecialId = $"{_fillApplicationButtonId}.2";
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
-                        "Шаг 3/3: Наконец - какая Ваша цель изучения English?");
+                        "**Шаг 3/3**: Наконец - какая Ваша цель изучения English?");
                     }
                 ));
 
