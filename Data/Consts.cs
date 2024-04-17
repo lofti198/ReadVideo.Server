@@ -15,6 +15,6 @@
 
         public static string MyTestEmail { get; internal set; } = "isolar2005@gmail.com";
 
-        public static int ClientMessageSymbolsLimit = 500;
+        public static int ClientMessageSymbolsLimit = 10;
     }
 }
