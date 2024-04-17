@@ -18,7 +18,19 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
         public override BotStateManager Create()
         {
             BotStateCollection stateCollection = new BotStateCollection();
+            stateCollection.AddState(
+                // Message size limit check
+                new BotState(
+                    async (clientToBotMessage, chatData) => clientToBotMessage.Text.Length > Consts.ClientMessageSymbolsLimit
+                    ,
+                    async (clientToBotMessage, chatData) =>
+                    {
+                        await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync
+                            (clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                            $"Ooops) Ваше сообщение больше {Consts.ClientMessageSymbolsLimit} символов. Я такие еще обрабатывать не умею)");
 
+                    }
+                ));
             stateCollection.AddState(
                 // Forwarding question to the support
                 new BotState(
