@@ -14,5 +14,7 @@
         public static string StartSpeaking_Setup_Key = "START_SPEAK";
 
         public static string MyTestEmail { get; internal set; } = "isolar2005@gmail.com";
+
+        public static int ClientMessageSymbolsLimit = 500;
     }
 }

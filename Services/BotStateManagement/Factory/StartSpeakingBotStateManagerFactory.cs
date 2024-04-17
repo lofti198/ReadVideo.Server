@@ -20,12 +20,28 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
         {
             BotStateCollection stateCollection = new BotStateCollection();
 
+
+            // if(clientToBotMessage.Text.Length> Consts.ClientMessageSymbolsLimit)
+
+            stateCollection.AddState(
+                // Message size limit check
+                new BotState(
+                    async (clientToBotMessage, chatData) => clientToBotMessage.Text.Length > Consts.ClientMessageSymbolsLimit
+                    ,
+                    async (clientToBotMessage, chatData) =>
+                    {
+                        await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync
+                            (clientToBotMessage.ClientId, clientToBotMessage.ChatId,
+                            $"Ooops) Ваше сообщение больше {Consts.ClientMessageSymbolsLimit} символов. Я такие еще обрабатывать не умею)"); 
+
+                    }
+                ));
             stateCollection.AddState(
                 // Button "Fill applicatoin" handler
                 new BotState(
                     async (clientToBotMessage, chatData) => clientToBotMessage.ButtonId == _fillApplicationButtonId
                     ,
-                    async (clientToBotMessage, chatHchatDataistory) =>
+                    async (clientToBotMessage, chatData) =>
                     {
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync
                             (clientToBotMessage.ClientId, clientToBotMessage.ChatId,
