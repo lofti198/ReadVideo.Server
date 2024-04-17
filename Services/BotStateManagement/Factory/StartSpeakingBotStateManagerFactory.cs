@@ -20,9 +20,6 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
         {
             BotStateCollection stateCollection = new BotStateCollection();
 
-
-            // if(clientToBotMessage.Text.Length> Consts.ClientMessageSymbolsLimit)
-
             stateCollection.AddState(
                 // Message size limit check
                 new BotState(
@@ -37,7 +34,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     }
                 ));
             stateCollection.AddState(
-                // Button "Fill applicatoin" handler
+                // Button "Fill application" handler
                 new BotState(
                     async (clientToBotMessage, chatData) => clientToBotMessage.ButtonId == _fillApplicationButtonId
                     ,
@@ -50,7 +47,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     }
                 ));
             stateCollection.AddState(
-                // Scenario "Describing parsing task" 1st step
+                // Scenario "Fill application" 1st step
                 new BotState(
                     async (clientToBotMessage, chatData) =>
                     {
@@ -67,7 +64,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     }
                 ));
             stateCollection.AddState(
-                // Scenario "Describing parsing task" 2nd step
+                // Scenario "Fill application" 2nd step
                 new BotState(
                     async (clientToBotMessage, chatData) =>
                     {
@@ -85,7 +82,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                 ));
 
             stateCollection.AddState(
-                // Scenario "Describing parsing task" 2nd step (data)
+                // Scenario "Fill application" 2nd step (data)
                 new BotState(
                     async (clientToBotMessage, chatData) =>
                     {
