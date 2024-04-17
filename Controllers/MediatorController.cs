@@ -20,17 +20,17 @@ namespace ReadVideo.Server.Controllers
         }
 
         // [HttpGet("SomeAction/{key}")]
-        [HttpPost("StartSpeaking")]
-        public async Task<IActionResult> StartSpeaking([FromBody] ClientMessage clientMessage)
-        {
-            return await JivoMediator(clientMessage, "startspeaking");
-        }
+        //[HttpPost("StartSpeaking")]
+        //public async Task<IActionResult> StartSpeaking([FromBody] ClientMessage clientMessage)
+        //{
+        //    return await JivoMediator(clientMessage, "startspeaking");
+        //}
 
         [HttpPost("Datacol")]
         public async Task<IActionResult> Datacol([FromBody] ClientMessage clientMessage)
         {
             string serviceKey = "";
-            if(clientMessage.Sender.Url.ToLower().Contains("zZzPoH2Dbm")||
+            if(clientMessage.Sender.Url.ToLower().Contains("zZzPoH2Dbm".ToLower()) ||
                 clientMessage.Sender.Url.ToLower().Contains("web-data-extractor.net"))
             {
                 serviceKey = "datacol";
