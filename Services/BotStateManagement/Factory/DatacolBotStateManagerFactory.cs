@@ -9,6 +9,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
 {
     public class DatacolBotStateManagerFactory : BotStateManagerFactoryBase
     {
+        const int _fillTaskButtonId = 10;
         public DatacolBotStateManagerFactory(DITypeFactoryBase<string, IJivoSiteService> jivoSiteServiceFactory, DITypeFactoryBase<string, IEmailSender> emailSenderServiceFactory, IAssistant assistant, IEmbeddingManager embeddingManager, IMessageEvaluator messageEvaluator, IChatDataStorageService chatDataStorageService)
             : base("datacol", jivoSiteServiceFactory, emailSenderServiceFactory, assistant, embeddingManager, messageEvaluator, chatDataStorageService)
         {
@@ -49,7 +50,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
             stateCollection.AddState(
                 // Button "Describe parsing task" handler
                 new BotState(
-                    async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == 10
+                    async (clientToBotMessage, chatHistory) => clientToBotMessage.ButtonId == _fillTaskButtonId
                     ,
                     async (clientToBotMessage, chatHistory) =>
                     {
@@ -64,12 +65,12 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                     {
                         var lastMessage = chatHistory.GetLastMessage();
                         if (lastMessage == null) return false;
-                        return lastMessage.ButtonId == 10;
+                        return lastMessage.ButtonId == _fillTaskButtonId;
                     }
                     ,
                     async (clientToBotMessage, chatHistory) =>
                     {
-                        clientToBotMessage.SpecialId = "10.1:site_input";
+                        clientToBotMessage.SpecialId = $"{_fillTaskButtonId}.1:site_input";
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                         "Прекрасно, скажите, какие данные нужно собрать?");
                     }
@@ -77,21 +78,24 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
             stateCollection.AddState(
                 // Scenario "Describing parsing task" 2nd step (data)
                 new BotState(
-                    async (clientToBotMessage, chatHistory) =>
+                    async (clientToBotMessage, chatData) =>
                     {
-                        var lastMessage = chatHistory.GetLastMessage();
+                        var lastMessage = chatData.GetLastMessage();
                         if (lastMessage == null) return false;
-                        return lastMessage.SpecialId == "10.1:site_input";
+                        return lastMessage.SpecialId == $"{_fillTaskButtonId}.1:site_input";
                     }
                     ,
-                    async (clientToBotMessage, chatHistory) =>
+                    async (clientToBotMessage, chatData) =>
                     {
+                        var copmleteTaskData = Utils.ParticularBotUtils.StartSpeakingBotUtils.GetCopmleteRequestData(clientToBotMessage, chatData,
+                           _fillTaskButtonId);
+
                         await _emailSenderServiceFactory.GetOrCreate(key).SendEmailAsync("isolar2005@gmail.com",
-                            $"{key} chat task for parsing sent (just last step for now)", clientToBotMessage.Text);
+                            $"{key} chat task for parsing sent (just last step for now)", copmleteTaskData);
                         await _jivoSiteServiceFactory.GetOrCreate(key).SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                          "Отлично! Отправили вашу задачу нашим разработчикам. В течение суток вы получите оценку стоимости. Есть ли у вас еще вопросы? Также, возможно, вы сразу хотите: ", "text",
                          new List<Button>() {
-                                        new Button() { Text = "Описать еще одну задачу по парсингу", Id = 10 },
+                                        new Button() { Text = "Описать еще одну задачу по парсингу", Id = _fillTaskButtonId },
                                         new Button() { Text = "Купить программу", Id = 50 }
                          });
                     }
@@ -124,7 +128,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                         await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                          "Есть ли у вас еще вопросы? Также, возможно, вы хотите: ", "text",
                             new List<Button>() {
-                                    new Button() { Text = "Описать задачу по парсингу", Id = 10 },
+                                    new Button() { Text = "Описать задачу по парсингу", Id = _fillTaskButtonId },
                                 // new Button() { Text = "Купить программу", Id = 50 }
                          });
                     }
@@ -167,7 +171,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory
                             await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                              "Я AI помощник Datacol. Пожалуйста, задайте свой вопрос. Также, возможно, вы сразу хотите: ", "text",
                              new List<Button>() {
-                                                    new Button() { Text = "Описать задачу по парсингу", Id = 10 },
+                                                    new Button() { Text = "Описать задачу по парсингу", Id = _fillTaskButtonId },
                                                     new Button() { Text = "Купить программу", Id = 50 }
                              });
                         }
