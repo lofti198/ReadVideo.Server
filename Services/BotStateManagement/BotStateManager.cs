@@ -15,14 +15,15 @@ namespace ReadVideo.Server.Services.BotStateManagement
 
         public async Task FindAppropriateAndExecute(ClientToBotMessage clientToBotMessage)
         {
+
             ChatData chatData = _chatDataStorage.GetChatData(clientToBotMessage.ClientId, clientToBotMessage.ChatId);
-            
+
             // Save info on buttons already clicked
             chatData.ButtonsClicked.Add(clientToBotMessage.ButtonId);
 
             foreach (BotState state in _stateCollection)
             {
-                if(await state.IsApplicable(clientToBotMessage, chatData))
+                if (await state.IsApplicable(clientToBotMessage, chatData))
                 {
 
                     await state.Operation(clientToBotMessage, chatData);
@@ -30,6 +31,8 @@ namespace ReadVideo.Server.Services.BotStateManagement
                     return;
                 }
             }
+
+
         }
     }
 }
