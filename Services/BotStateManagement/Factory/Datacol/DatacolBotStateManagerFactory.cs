@@ -5,6 +5,7 @@ using ReadVideo.Server.Services.AIAssistants;
 using ReadVideo.Server.Services.EmailSending;
 using ReadVideo.Server.Services.Embeddings;
 using ReadVideo.Server.Utils;
+using Telegram.Bot;
 
 namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
 {
@@ -155,7 +156,6 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                     {
                         var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(key);
 
-
                         //// Critical
                         //if (messageFeatures.Critical)
                         //{
@@ -165,10 +165,10 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                         //        $"{key} Sensitive from client", clientToBotMessage.Text);
 
                         //}
-                        
+                        Console.WriteLine("jivo wait");
                         await Task.Delay(1000);
                         await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, "Пару секунд, AI готовит ответ...");
-
+                        Console.WriteLine("jivo after wait");
                         List<FAQItem> faqLinks = await _embeddingManager.GetResponseAsync(clientToBotMessage.Text);
                         clientToBotMessage.FaqItems = faqLinks;
                     //await _assistant.GetResponseAsync(clientMessage.Message.Text,"", Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
