@@ -165,10 +165,10 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                         //        $"{key} Sensitive from client", clientToBotMessage.Text);
 
                         //}
-                        Console.WriteLine("jivo wait");
+                        
                         await Task.Delay(1000);
                         await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, "Пару секунд, AI готовит ответ...");
-                        Console.WriteLine("jivo after wait");
+                      
                         List<FAQItem> faqLinks = await _embeddingManager.GetResponseAsync(clientToBotMessage.Text);
                         clientToBotMessage.FaqItems = faqLinks;
                     //await _assistant.GetResponseAsync(clientMessage.Message.Text,"", Consts.OpenAIAssistantID_DC, clientMessage.ChatId);
@@ -177,10 +177,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                             faqLinks.BuildAssistantInstruction(),
                             Consts.OpenAIAssistantID_DC, clientToBotMessage.ChatId);
                         var assistantResponse = JsonConvert.DeserializeObject<DCAssistantResponse>(rawAssistantResponse);
-
-                        await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, assistantResponse.Response);
-                        await Task.Delay(1000);
-
+                        
                         if (assistantResponse.Welcome)
                         {
                             await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
@@ -198,8 +195,11 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                                                 new Button() { Text = "Переслать поддержке", Id = 1 },
                                 });
                         }
-                        else
+                        else if(assistantResponse.Response!=null)
                         {
+                            await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, assistantResponse.Response);
+                            await Task.Delay(1000);
+
                             await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
                                 "Удалось ли найти ответ? Если нет, то могу переслать вопрос на email поддержки или показать похожие статьи из базы знаний. Также, вы можете сформулировать вопрос по-другому либо сразу описать свою задачу по парсингу.", "text",
                                 new List<Button>() {
@@ -207,6 +207,10 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                                                 new Button() { Text = "Показать похожие", Id = 20 },
                                                 new Button() { Text = "Описать задачу по парсингу", Id = 10 }
                                 });
+                        }
+                        else
+                        {
+                            throw new Exception("Unknown error for: "+ clientToBotMessage.Text);
                         }
                     }
                 ));
