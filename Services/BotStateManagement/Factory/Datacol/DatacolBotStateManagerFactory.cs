@@ -190,7 +190,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                         else if(!assistantResponse.Found)
                         {
                             await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
-                                "Могу переслать вопрос на email поддержки. Также, вы можете сформулировать вопрос по-другому.", "text",
+                                "Не нашел я ответа 😢. Могу прямо сейчас переслать вопрос поддержке", "text",
                                 new List<Button>() {
                                                 new Button() { Text = "Переслать поддержке", Id = 1 },
                                 });
@@ -201,7 +201,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                             await Task.Delay(1000);
 
                             await jivoSiteService.SendMessageWithButtonsAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId,
-                                "Удалось ли найти ответ? Если нет, то могу переслать вопрос на email поддержки или показать похожие статьи из базы знаний. Также, вы можете сформулировать вопрос по-другому либо сразу описать свою задачу по парсингу.", "text",
+                                "Этот ли ответ вы искали? Если нет, то могу переслать поддержке или показать похожие статьи из базы знаний.", "text",
                                 new List<Button>() {
                                                 new Button() { Text = "Переслать поддержке", Id = 1 },
                                                 new Button() { Text = "Показать похожие", Id = 20 },
