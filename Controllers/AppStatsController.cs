@@ -4,9 +4,9 @@ namespace ReadVideo.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AppStatsController : ControllerBase
+    public class AddRecordController : ControllerBase
     {
-        [HttpPost("addRecord")]
+        [HttpPost]//("addRecord"
         public IActionResult AddRecord([FromBody] RecordData data)
         {
             // Process the data here
