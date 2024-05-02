@@ -156,6 +156,10 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                     {
                         var jivoSiteService = _jivoSiteServiceFactory.GetOrCreate(key);
 
+                        //var bot = new TelegramBotClient("7028277585:AAH5fMFALZEQN0IrB3Nii2PNtFJSxzmHUs0");
+                        //var chat = bot.GetChatAsync("@alexap31");
+                        //var t = await bot.SendTextMessageAsync(chat.Id, clientToBotMessage.Text);
+
                         //// Critical
                         //if (messageFeatures.Critical)
                         //{
@@ -165,7 +169,7 @@ namespace ReadVideo.Server.Services.BotStateManagement.Factory.Datacol
                         //        $"{key} Sensitive from client", clientToBotMessage.Text);
 
                         //}
-                        
+
                         await Task.Delay(1000);
                         await jivoSiteService.SendMessageAsync(clientToBotMessage.ClientId, clientToBotMessage.ChatId, "Пару секунд, AI готовит ответ...");
                       
