@@ -51,7 +51,7 @@ namespace ReadVideo.Server.Controllers
         }
 
         [HttpGet("view-all")]
-        [ApiKey]
+        // [ApiKey]
         public async Task<IActionResult> GetAllRecords([FromQuery] int delete = 0)
         {
             var data = await _context.CampaignLaunchStats.ToListAsync();
