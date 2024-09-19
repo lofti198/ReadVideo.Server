@@ -48,10 +48,9 @@ namespace ReadVideo.Server
             builder.Services.AddKeyedSingleton<BotStateManagerFactoryBase, DatacolBotStateManagerFactory>("datacol");
             builder.Services.AddKeyedSingleton<BotStateManagerFactoryBase, StartSpeakingBotStateManagerFactory>("startspeaking");
 
-            builder.Services.AddDbContext<DCStatsDbContext>(options =>
-        options.UseNpgsql(Environment.GetEnvironmentVariable("POSTGRE_CONNECTION")));
-            // builder.Services.AddKeyedSingleton<BotStateManagerFactory, StartSpeakingBotStateManagerFactory>("startspeaking");
-
+        //    builder.Services.AddDbContext<DCStatsDbContext>(options =>
+        //options.UseNpgsql(Environment.GetEnvironmentVariable("POSTGRE_CONNECTION")));
+           
             builder.Services.AddSingleton<DITypeFactoryBase<string, BotStateManager>>(
                 serviceProvider => new DITypeFactoryBase<string, BotStateManager>(
                     serviceProvider,
