@@ -29,16 +29,19 @@ namespace ReadVideo.Server.Controllers
         [HttpGet("LoadSubtitles")]
         public async Task<IActionResult> LoadSubtitles([FromQuery] string videoId, [FromQuery] string language ="", [FromQuery] bool full = true)
         {
-           
-                
-                Console.WriteLine($"Get subtitles for: {videoId}");
-                var subtitles = await _subtitleService.ExtractSubtitle(videoId, language, full);
+            // [FromQuery] bool justText = true, 
+
+            Console.WriteLine($"Get subtitles for: {videoId}"); //
+                var subtitles = await _subtitleService.ExtractSubtitleAsRawText(videoId, language);
 
                 if (subtitles == null)
                 {
                     return NotFound("Subtitles not found.");
                 }
+            //if (justText)
+            //{
 
+            //}
                 return Ok(subtitles);
 
         }

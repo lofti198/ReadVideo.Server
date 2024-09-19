@@ -11,6 +11,44 @@ namespace ReadVideo.Services.YoutubeManagement
 {
     public class YoutubeSubtitleService : IYoutubeSubtitleService
     {
+        public async Task<string> ExtractSubtitleAsRawText(string videoId, string language)
+        {
+            try
+            {
+                // Create a new instance of YoutubeClient
+                var youtube = new YoutubeClient();
+
+                // Get the available subtitle tracks
+                var tracks = await youtube.Videos.ClosedCaptions.GetManifestAsync(videoId);
+
+                if (String.IsNullOrEmpty(language)) language = tracks.Tracks[0].Language.Code;
+
+                // Select the track based on the specified language
+                var trackInfo = tracks.GetByLanguage(language);
+
+                if (trackInfo != null)
+                {
+                    // Get the actual subtitle track
+                    var track = await youtube.Videos.ClosedCaptions.GetAsync(trackInfo);
+
+                    // Extract only the text from the captions and concatenate them into a single string
+                    var rawText = string.Join(" ", track.Captions
+                        .Where(caption => !string.IsNullOrEmpty(caption.Text.Trim()))
+                        .Select(caption => caption.Text));
+
+                    return rawText;
+                }
+
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception or rethrow it
+                throw new Exception("An error occurred while extracting subtitles.", ex);
+            }
+        }
+
+
         public async Task<string> ExtractSubtitle(string videoId, string language, bool returnFullData)
         {
             try
