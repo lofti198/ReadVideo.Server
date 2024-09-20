@@ -115,20 +115,20 @@ namespace ReadVideo.Server
             builder.Services.AddSingleton<IEmbeddingManager, EmbeddingManager>();
 
 
-            var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
-            var mongoDbConnectionString = Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar);
+            //var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
+            //var mongoDbConnectionString = Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar);
             
-            builder.Services.AddSingleton<IMongoClient>(ServiceProvider =>
-            {
-                return new MongoClient(mongoDbConnectionString);
-            });
-            builder.Services.AddSingleton(serviceProvider =>
-            {
-                var client = serviceProvider.GetRequiredService<IMongoClient>();
-                return client.GetDatabase(mongoDbSettings.DatabaseName);
-            });
-            // builder.Services.AddScoped<MongoDbContext>();
-            builder.Services.AddSingleton(new MongoDbContext(Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar), mongoDbSettings.DatabaseName));
+            //builder.Services.AddSingleton<IMongoClient>(ServiceProvider =>
+            //{
+            //    return new MongoClient(mongoDbConnectionString);
+            //});
+            //builder.Services.AddSingleton(serviceProvider =>
+            //{
+            //    var client = serviceProvider.GetRequiredService<IMongoClient>();
+            //    return client.GetDatabase(mongoDbSettings.DatabaseName);
+            //});
+            
+            //builder.Services.AddSingleton(new MongoDbContext(Environment.GetEnvironmentVariable(mongoDbSettings.ConnectionStringEnvVar), mongoDbSettings.DatabaseName));
 
             builder.Services.AddMemoryCache();
             //var mongoConnectionString = builder.Configuration.GetConnectionString("MongoConnection");

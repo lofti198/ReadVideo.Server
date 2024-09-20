@@ -16,12 +16,13 @@ namespace ReadVideo.Server.Controllers
     public class YoutubeSubtitlesController : ControllerBase
     {
         private readonly IYoutubeSubtitleService _subtitleService;
-        private readonly MongoDbContext _dbContext;
+        //private readonly MongoDbContext _dbContext;
         private readonly IMemoryCache _memoryCache;
-        public YoutubeSubtitlesController(IYoutubeSubtitleService subtitleService, MongoDbContext dbContext, IMemoryCache memoryCache)
+        public YoutubeSubtitlesController(IYoutubeSubtitleService subtitleService, // MongoDbContext dbContext,
+            IMemoryCache memoryCache)
         {
             this._subtitleService = subtitleService;
-            this._dbContext = dbContext;
+            //this._dbContext = dbContext;
             this._memoryCache = memoryCache;
         }
 
@@ -71,19 +72,19 @@ namespace ReadVideo.Server.Controllers
           
         }
 
-        private async Task<bool> CheckUserInMongo(string email)
-        {
-            // Check if the user exists in the MongoDB Users collection
-            var user = await _dbContext.Users.Find(u => u.Email == email).FirstOrDefaultAsync();
-            return user != null;
-        }
+        //private async Task<bool> CheckUserInMongo(string email)
+        //{
+        //    // Check if the user exists in the MongoDB Users collection
+        //    var user = await _dbContext.Users.Find(u => u.Email == email).FirstOrDefaultAsync();
+        //    return user != null;
+        //}
 
-        private async Task AddUserToMongo(string email, string fullname)
-        {
-            // Add the user to the MongoDB Users collection
-            var user = new User { Email = email, Fullname = fullname };
-            await _dbContext.Users.InsertOneAsync(user);
-        }
+        //private async Task AddUserToMongo(string email, string fullname)
+        //{
+        //    // Add the user to the MongoDB Users collection
+        //    var user = new User { Email = email, Fullname = fullname };
+        //    await _dbContext.Users.InsertOneAsync(user);
+        //}
     }
 
 }
