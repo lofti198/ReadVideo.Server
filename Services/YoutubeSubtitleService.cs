@@ -44,7 +44,7 @@ namespace ReadVideo.Services.YoutubeManagement
             catch (Exception ex)
             {
                 // Handle the exception or rethrow it
-                throw new Exception("An error occurred while extracting subtitles.", ex);
+                throw new Exception("An error occurred while extracting subtitles: "+ex.Message, ex);
             }
         }
 
