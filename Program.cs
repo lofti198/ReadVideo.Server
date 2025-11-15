@@ -17,6 +17,7 @@ using ReadVideo.Server.Services.EmailSending;
 using ReadVideo.Server.Services.Embeddings;
 using ReadVideo.Server.Services.Embeddings.Generation;
 using ReadVideo.Server.Services.Embeddings.Storage;
+using ReadVideo.Server.Services.Support;
 using ReadVideo.Server.Utils;
 using ReadVideo.Services.YoutubeManagement;
 using IEmailSender = ReadVideo.Server.Services.EmailSending.IEmailSender;
@@ -113,6 +114,27 @@ namespace ReadVideo.Server
 
             builder.Services.AddSingleton<IAssistant, OpenAIAssistant>();
             builder.Services.AddSingleton<IEmbeddingManager, EmbeddingManager>();
+
+            // Support Request Services
+            builder.Services.AddScoped<ISupportRequestService, SupportRequestService>();
+            builder.Services.AddScoped<Services.Support.IEmailService>(serviceProvider =>
+            {
+                var logger = serviceProvider.GetRequiredService<ILogger<Services.Support.EmailService>>();
+                var configuration = serviceProvider.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>();
+
+                // Get SMTP settings from environment variable (same as existing email service)
+                string jsonSettings = Environment.GetEnvironmentVariable("DATACOL_SMTP_SETTING");
+
+                if (!string.IsNullOrEmpty(jsonSettings))
+                {
+                    SmtpSettings smtpSettings = JsonConvert.DeserializeObject<SmtpSettings>(jsonSettings);
+                    return new Services.Support.EmailService(smtpSettings, logger, configuration);
+                }
+                else
+                {
+                    throw new InvalidOperationException("SMTP settings are not configured in environment variables.");
+                }
+            });
 
 
             //var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings").Get<MongoDbSettings>();
