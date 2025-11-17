@@ -31,7 +31,7 @@ namespace ReadVideo.Server.Controllers
             {
                 message = "Support API is running",
                 timestamp = DateTime.UtcNow,
-                endpoint = "/api/support/request"
+                endpoint = "/api/support"
             });
         }
 
@@ -40,7 +40,7 @@ namespace ReadVideo.Server.Controllers
         /// </summary>
         /// <param name="request">Support request containing email, question, and datacol configuration</param>
         /// <returns>Response indicating success/failure with ticket ID</returns>
-        [HttpPost("request")]
+        [HttpPost]
         [ProducesResponseType(typeof(SupportRequestResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
