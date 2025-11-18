@@ -53,6 +53,9 @@ namespace ReadVideo.Server.Services.Support
                 };
                 mailMessage.To.Add(_supportEmail);
 
+                // Set Reply-To as user's email so replies go directly to the user
+                mailMessage.ReplyToList.Add(new MailAddress(email));
+
                 // Add XML attachment if provided
                 if (!string.IsNullOrEmpty(datacolXml))
                 {

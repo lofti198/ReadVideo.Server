@@ -54,11 +54,11 @@ namespace ReadVideo.Server.Controllers
                     request.Email,
                     request.CurrentUrl);
 
-                // Validate request
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+                //// Validate request
+                //if (!ModelState.IsValid)
+                //{
+                //    return BadRequest(ModelState);
+                //}
 
                 // Process the support request
                 var result = await _supportRequestService.ProcessSupportRequestAsync(request);
