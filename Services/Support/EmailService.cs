@@ -46,7 +46,7 @@ namespace ReadVideo.Server.Services.Support
             {
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(_smtpSettings.From),
+                    From = new MailAddress("noreply@web-data-extractor.net"),
                     Subject = subject,
                     Body = bodyBuilder.ToString(),
                     IsBodyHtml = true,
@@ -56,12 +56,12 @@ namespace ReadVideo.Server.Services.Support
                 // Set Reply-To as user's email so replies go directly to the user
                 mailMessage.ReplyToList.Add(new MailAddress(email));
 
-                // Add XML attachment if provided
+                // Add XML attachment if provided (as .par file)
                 if (!string.IsNullOrEmpty(datacolXml))
                 {
                     var xmlBytes = Encoding.UTF8.GetBytes(datacolXml);
                     var stream = new MemoryStream(xmlBytes);
-                    var attachment = new Attachment(stream, $"{ticketId}.xml", "application/xml");
+                    var attachment = new Attachment(stream, $"{ticketId}.par", "application/xml");
                     mailMessage.Attachments.Add(attachment);
                 }
 
@@ -100,7 +100,7 @@ namespace ReadVideo.Server.Services.Support
             {
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(_smtpSettings.From),
+                    From = new MailAddress("noreply@web-data-extractor.net"),
                     Subject = subject,
                     Body = bodyBuilder.ToString(),
                     IsBodyHtml = true,
